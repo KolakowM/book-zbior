@@ -1,0 +1,100 @@
+diff --git a/.gitignore b/.gitignore
+index 1715e2c..a2b1ed2 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -4,3 +4,5 @@ node_modules
+ .env*.local
+ *.log
+ .DS_Store
++next-env.d.ts
++*.tsbuildinfo
+diff --git a/middleware.ts b/middleware.ts
+index b62ed66..3df9e40 100644
+--- a/middleware.ts
++++ b/middleware.ts
+@@ -1,4 +1,4 @@
+-import { createServerClient } from "@supabase/ssr";
++import { createServerClient, type CookieOptions } from "@supabase/ssr";
+ import { NextResponse, type NextRequest } from "next/server";
+ 
+ // Odświeża sesję przy każdym żądaniu i przekierowuje niezalogowanych
+@@ -14,7 +14,9 @@ export async function middleware(request: NextRequest) {
+         getAll() {
+           return request.cookies.getAll();
+         },
+-        setAll(cookiesToSet) {
++        setAll(
++          cookiesToSet: { name: string; value: string; options: CookieOptions }[]
++        ) {
+           cookiesToSet.forEach(({ name, value }) =>
+             request.cookies.set(name, value)
+           );
+diff --git a/src/components/LibraryView.tsx b/src/components/LibraryView.tsx
+index 4994438..2ec44bc 100644
+--- a/src/components/LibraryView.tsx
++++ b/src/components/LibraryView.tsx
+@@ -23,7 +23,7 @@ export default function LibraryView({ items }: { items: LibraryItem[] }) {
+   const filtered = useMemo(
+     () =>
+       items.filter((it) => {
+-        const q = (it.book.title + it.book.author).toLowerCase().includes(query.toLowerCase());
++        const q = (it.book.title + " " + it.book.author).toLowerCase().includes(query.toLowerCase());
+         const f = filter === "all" ? true : it.reading_status === filter;
+         return q && f;
+       }),
+diff --git a/src/lib/supabase/middleware.ts b/src/lib/supabase/middleware.ts
+deleted file mode 100644
+index 85cd787..0000000
+--- a/src/lib/supabase/middleware.ts
++++ /dev/null
+@@ -1,50 +0,0 @@
+-import { createServerClient } from "@supabase/ssr";
+-import { NextResponse, type NextRequest } from "next/server";
+-
+-// Odświeża sesję przy każdym żądaniu i przekierowuje niezalogowanych
+-// z chronionych sekcji (np. /biblioteka) na stronę logowania.
+-export async function middleware(request: NextRequest) {
+-  let response = NextResponse.next({ request });
+-
+-  const supabase = createServerClient(
+-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+-    {
+-      cookies: {
+-        getAll() {
+-          return request.cookies.getAll();
+-        },
+-        setAll(cookiesToSet: { name: string; value: string; options?: any }[]) {
+-          cookiesToSet.forEach(({ name, value }) =>
+-            request.cookies.set(name, value)
+-          );
+-          response = NextResponse.next({ request });
+-          cookiesToSet.forEach(({ name, value, options }) =>
+-            response.cookies.set(name, value, options)
+-          );
+-        },
+-      },
+-    }
+-  );
+-
+-  const {
+-    data: { user },
+-  } = await supabase.auth.getUser();
+-
+-  const protectedPaths = ["/biblioteka", "/profil", "/dashboard"];
+-  const isProtected = protectedPaths.some((p) =>
+-    request.nextUrl.pathname.startsWith(p)
+-  );
+-
+-  if (!user && isProtected) {
+-    const url = request.nextUrl.clone();
+-    url.pathname = "/login";
+-    return NextResponse.redirect(url);
+-  }
+-
+-  return response;
+-}
+-
+-export const config = {
+-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+-};

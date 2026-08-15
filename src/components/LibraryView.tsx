@@ -23,7 +23,7 @@ export default function LibraryView({ items }: { items: LibraryItem[] }) {
   const filtered = useMemo(
     () =>
       items.filter((it) => {
-        const q = (it.book.title + it.book.author).toLowerCase().includes(query.toLowerCase());
+        const q = (it.book.title + " " + it.book.author).toLowerCase().includes(query.toLowerCase());
         const f = filter === "all" ? true : it.reading_status === filter;
         return q && f;
       }),
