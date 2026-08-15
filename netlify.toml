@@ -6,4 +6,8 @@
   NODE_VERSION = "20"
 
 [[plugins]]
+<<<<<<< HEAD
   package = "@netlify/plugin-nextjs"
+=======
+  package = "@netlify/plugin-nextjs"
+>>>>>>> 6d4d09808b9a06cacd5b78083e392467feb90caa
