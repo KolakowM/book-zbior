@@ -5,7 +5,7 @@ export const INK = "#1E2233";
 
 // Style współdzielone przez komponenty półki — wygląd identyczny z prototypem.
 export const s: Record<string, CSSProperties> = {
-  page: { fontFamily: "var(--font-body)", maxWidth: 430, margin: "0 auto", minHeight: "100vh", background: PAPER, color: INK, position: "relative", paddingBottom: 96 },
+  page: { fontFamily: "var(--font-body)", maxWidth: 1080, width: "100%", margin: "0 auto", minHeight: "100vh", background: PAPER, color: INK, position: "relative", paddingBottom: 96 },
 
   header: { background: INK, color: PAPER, padding: "20px 20px 16px", borderRadius: "0 0 24px 24px", position: "sticky", top: 0, zIndex: 10 },
   headerTop: { display: "flex", justifyContent: "space-between", alignItems: "flex-start" },
@@ -19,7 +19,7 @@ export const s: Record<string, CSSProperties> = {
   statLbl: { fontSize: 11, color: "#9BA0B3", marginTop: 3 },
   statDivide: { width: 1, height: 24, background: "#3A3F52" },
 
-  searchWrap: { display: "flex", alignItems: "center", gap: 8, marginTop: 16, background: PAPER, borderRadius: 12, padding: "10px 12px" },
+  searchWrap: { display: "flex", alignItems: "center", gap: 8, marginTop: 16, background: PAPER, borderRadius: 12, padding: "10px 12px", maxWidth: 460 },
   search: { border: "none", background: "transparent", flex: 1, fontSize: 14, color: INK, outline: "none" },
   clearBtn: { border: "none", background: "none", color: "#8A7E64", display: "grid", placeItems: "center", padding: 0, cursor: "pointer" },
 
@@ -28,7 +28,7 @@ export const s: Record<string, CSSProperties> = {
   chipActive: { background: "#C9A227", color: INK, borderColor: "#C9A227", fontWeight: 600 },
 
   main: { padding: "20px 16px 0" },
-  grid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 },
+  grid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: 24 },
 
   card: { display: "flex", flexDirection: "column", background: "none", border: "none", padding: 0, textAlign: "left", cursor: "pointer" },
   cardInner: { display: "flex", height: 210, borderRadius: "4px 8px 8px 4px", overflow: "hidden", boxShadow: "0 8px 20px rgba(30,34,51,0.18)" },
