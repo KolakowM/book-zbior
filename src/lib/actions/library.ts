@@ -19,12 +19,32 @@ export async function addBook(formData: FormData) {
   const status = (String(formData.get("status") || "want_to_read")) as ReadingStatus;
   if (!title) throw new Error("Tytuł jest wymagany.");
 
+  const isbn13 = String(formData.get("isbn13") || "").trim() || null;
+  const isbn10 = String(formData.get("isbn10") || "").trim() || null;
+  const coverUrl = String(formData.get("coverUrl") || "").trim() || null;
+  const publisher = String(formData.get("publisher") || "").trim() || null;
+  const yearNum = parseInt(String(formData.get("year") || ""), 10);
+  const pagesNum = parseInt(String(formData.get("pages") || ""), 10);
+  const year = Number.isFinite(yearNum) ? yearNum : null;
+  const pages = Number.isFinite(pagesNum) ? pagesNum : null;
+
   const color = COVER_COLORS[Math.floor(Math.random() * COVER_COLORS.length)];
 
   // Uwaga: deduplikację katalogu rozwiążemy później — na razie nowy wpis.
   const { data: book, error: bookErr } = await supabase
     .from("book_catalog")
-    .insert({ title, author, cover_color: color, created_by: user.id })
+    .insert({
+      title,
+      author,
+      isbn_13: isbn13,
+      isbn_10: isbn10,
+      cover_image_url: coverUrl,
+      cover_color: color,
+      publisher,
+      publication_year: year,
+      page_count: pages,
+      created_by: user.id,
+    })
     .select("id")
     .single();
   if (bookErr) throw bookErr;
