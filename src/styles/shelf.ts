@@ -7,7 +7,7 @@ export const INK = "#1E2233";
 export const s: Record<string, CSSProperties> = {
   page: { fontFamily: "var(--font-body)", maxWidth: 1080, width: "100%", margin: "0 auto", minHeight: "100vh", background: PAPER, color: INK, position: "relative", paddingBottom: 96 },
 
-  header: { background: INK, color: PAPER, padding: "20px 20px 16px", borderRadius: "0 0 24px 24px", position: "sticky", top: 0, zIndex: 10 },
+  header: { background: INK, color: PAPER, padding: "20px 20px 16px", borderRadius: "0 0 24px 24px", position: "relative", zIndex: 1 },
   headerTop: { display: "flex", justifyContent: "space-between", alignItems: "flex-start" },
   eyebrow: { fontSize: 11, letterSpacing: 2.5, color: "#C9A227", fontWeight: 600 },
   h1: { fontFamily: "var(--font-display)", fontSize: 32, fontWeight: 600, margin: "2px 0 0" },
@@ -53,7 +53,7 @@ export const s: Record<string, CSSProperties> = {
   emptyText: { fontFamily: "var(--font-display)", fontSize: 18, margin: "12px 0 2px", color: "#5A5240" },
   emptySub: { fontSize: 13, margin: 0, color: "#8A7E64" },
 
-  fab: { position: "fixed", bottom: 28, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 6, background: "#B4632A", color: "#fff", border: "none", padding: "13px 22px", borderRadius: 999, fontSize: 15, fontWeight: 600, boxShadow: "0 8px 24px rgba(180,99,42,0.4)", zIndex: 20, cursor: "pointer" },
+  fab: { position: "fixed", bottom: 84, left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 6, background: "#B4632A", color: "#fff", border: "none", padding: "13px 22px", borderRadius: 999, fontSize: 15, fontWeight: 600, boxShadow: "0 8px 24px rgba(180,99,42,0.4)", zIndex: 20, cursor: "pointer" },
 
   // modal
   overlay: { position: "fixed", inset: 0, background: "rgba(20,22,33,0.5)", zIndex: 50, display: "flex", alignItems: "flex-end", justifyContent: "center" },
