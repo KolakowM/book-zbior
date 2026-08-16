@@ -2,9 +2,9 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useState } from "react";
-import { X, Star, Repeat, Calendar, BookOpen, Building2, Check, Edit3 } from "lucide-react";
+import { X, Star, Repeat, Calendar, BookOpen, Building2, Check, Edit3, ChevronDown } from "lucide-react";
 import { STATUSES, STATUS_KEYS } from "@/lib/statuses";
-import { updateStatus, updateRating, saveReview, toggleSwap, getBookExtras } from "@/lib/actions/library";
+import { updateStatus, updateRating, saveReview, toggleSwap, getBookExtras, updateDetails } from "@/lib/actions/library";
 import type { LibraryItem, ReadingStatus } from "@/lib/types";
 
 const PAPER = "#ECE7DA";
@@ -24,6 +24,17 @@ export default function BookDrawer({ item, onClose }: { item: LibraryItem; onClo
   const [draft, setDraft] = useState("");
   const [savingReview, setSavingReview] = useState(false);
   const [loaded, setLoaded] = useState(false);
+
+  // Szczegóły egzemplarza
+  const [showDetails, setShowDetails] = useState(false);
+  const [price, setPrice] = useState(item.purchase_price != null ? String(item.purchase_price) : "");
+  const [place, setPlace] = useState(item.purchase_location ?? "");
+  const [buyDate, setBuyDate] = useState(item.purchase_date ?? "");
+  const [page, setPage] = useState(item.current_page != null ? String(item.current_page) : "");
+  const [readDate, setReadDate] = useState(item.read_date ?? "");
+  const [notes, setNotes] = useState(item.private_notes ?? "");
+  const [savingDetails, setSavingDetails] = useState(false);
+  const [savedDetails, setSavedDetails] = useState(false);
 
   const color = item.book.cover_color ?? "#3D4A6B";
   const cover = item.book.cover_image_url;
@@ -68,6 +79,29 @@ export default function BookDrawer({ item, onClose }: { item: LibraryItem; onClo
       alert("Nie udało się zapisać recenzji.");
     } finally {
       setSavingReview(false);
+    }
+  };
+
+  const saveDetails = async () => {
+    setSavingDetails(true);
+    setSavedDetails(false);
+    const priceNum = Number(price.replace(",", "."));
+    const pageNum = parseInt(page, 10);
+    try {
+      await updateDetails(item.id, {
+        purchase_price: price.trim() && Number.isFinite(priceNum) ? priceNum : null,
+        purchase_location: place.trim() || null,
+        purchase_date: buyDate || null,
+        current_page: page.trim() && Number.isFinite(pageNum) ? pageNum : null,
+        read_date: readDate || null,
+        private_notes: notes.trim() || null,
+      });
+      setSavedDetails(true);
+      setTimeout(() => setSavedDetails(false), 2000);
+    } catch {
+      alert("Nie udało się zapisać szczegółów.");
+    } finally {
+      setSavingDetails(false);
     }
   };
 
@@ -128,6 +162,43 @@ export default function BookDrawer({ item, onClose }: { item: LibraryItem; onClo
             <Repeat size={16} />
             {forExchange ? "Dostępna do wymiany — kliknij, aby wycofać" : "Oznacz jako dostępną do wymiany"}
           </button>
+
+          {/* Szczegóły egzemplarza */}
+          <button onClick={() => setShowDetails((v) => !v)} style={detailsToggle}>
+            <span>Szczegóły egzemplarza</span>
+            <ChevronDown size={16} style={{ transform: showDetails ? "rotate(180deg)" : "none", transition: "transform .2s" }} />
+          </button>
+          {showDetails && (
+            <div style={detailsWrap}>
+              <div style={detailsRow}>
+                <div style={{ flex: 1 }}>
+                  <label style={miniLabel}>Cena (zł)</label>
+                  <input style={miniField} inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="np. 39,90" />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={miniLabel}>Data zakupu</label>
+                  <input style={miniField} type="date" value={buyDate} onChange={(e) => setBuyDate(e.target.value)} />
+                </div>
+              </div>
+              <label style={miniLabel}>Miejsce zakupu</label>
+              <input style={miniField} value={place} onChange={(e) => setPlace(e.target.value)} placeholder="np. Empik, antykwariat, Allegro" />
+              <div style={detailsRow}>
+                <div style={{ flex: 1 }}>
+                  <label style={miniLabel}>Postęp — strona{item.book.page_count ? ` z ${item.book.page_count}` : ""}</label>
+                  <input style={miniField} inputMode="numeric" value={page} onChange={(e) => setPage(e.target.value)} placeholder="0" />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={miniLabel}>Data przeczytania</label>
+                  <input style={miniField} type="date" value={readDate} onChange={(e) => setReadDate(e.target.value)} />
+                </div>
+              </div>
+              <label style={miniLabel}>Prywatne notatki</label>
+              <textarea style={{ ...textarea, minHeight: 70 }} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Tylko dla Ciebie…" />
+              <button onClick={saveDetails} disabled={savingDetails} style={{ ...saveReviewBtn, marginTop: 8, opacity: savingDetails ? 0.6 : 1 }}>
+                <Check size={15} /> {savingDetails ? "…" : savedDetails ? "Zapisano" : "Zapisz szczegóły"}
+              </button>
+            </div>
+          )}
 
           {/* Recenzja */}
           <div style={sectionLabel}>Twoja recenzja</div>
@@ -203,3 +274,8 @@ const textarea: React.CSSProperties = { width: "100%", minHeight: 100, border: "
 const saveReviewBtn: React.CSSProperties = { display: "flex", alignItems: "center", gap: 6, background: FOREST, color: "#fff", border: "none", padding: "11px 18px", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer" };
 const cancelReviewBtn: React.CSSProperties = { background: "transparent", border: "1px solid #D3C9B4", color: MUTED, padding: "11px 18px", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer" };
 const hint: React.CSSProperties = { fontSize: 13, color: MUTED, marginTop: 10 };
+const detailsToggle: React.CSSProperties = { width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 22, padding: "13px 14px", borderRadius: 12, border: "1px solid #DAD4C2", background: "#F3EFE4", color: INK, fontSize: 14, fontWeight: 600, cursor: "pointer" };
+const detailsWrap: React.CSSProperties = { marginTop: 10, padding: 16, borderRadius: 14, border: "1px solid #DAD4C2", background: "#F3EFE4" };
+const detailsRow: React.CSSProperties = { display: "flex", gap: 10 };
+const miniLabel: React.CSSProperties = { display: "block", fontSize: 11, fontWeight: 600, color: MUTED, margin: "0 0 5px" };
+const miniField: React.CSSProperties = { width: "100%", border: "1px solid #DAD4C2", background: PAPER, borderRadius: 8, padding: "9px 10px", fontSize: 14, color: INK, marginBottom: 12, outline: "none", fontFamily: "var(--font-body)" };

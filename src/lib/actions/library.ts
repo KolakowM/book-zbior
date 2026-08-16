@@ -169,3 +169,21 @@ export async function getBookExtras(userLibraryId: string, bookId: string) {
 
   return { reviewBody: review?.body ?? "", forExchange: !!listing };
 }
+
+// Zapis pól finansowych, postępu i notatek egzemplarza.
+export async function updateDetails(
+  id: string,
+  patch: {
+    purchase_price?: number | null;
+    purchase_location?: string | null;
+    purchase_date?: string | null;
+    current_page?: number | null;
+    read_date?: string | null;
+    private_notes?: string | null;
+  }
+) {
+  const supabase = createClient();
+  const { error } = await supabase.from("user_library").update(patch).eq("id", id);
+  if (error) throw error;
+  revalidatePath("/biblioteka");
+}
