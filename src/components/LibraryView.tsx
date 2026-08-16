@@ -5,6 +5,7 @@ import { Search, X, Plus, BookOpen, User } from "lucide-react";
 import { s } from "@/styles/shelf";
 import BookCard from "./BookCard";
 import AddBookModal from "./AddBookModal";
+import BookDrawer from "./BookDrawer";
 import type { LibraryItem, ReadingStatus } from "@/lib/types";
 
 const FILTERS: { key: "all" | ReadingStatus; label: string }[] = [
@@ -19,6 +20,7 @@ export default function LibraryView({ items }: { items: LibraryItem[] }) {
   const [filter, setFilter] = useState<"all" | ReadingStatus>("all");
   const [query, setQuery] = useState("");
   const [showAdd, setShowAdd] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const filtered = useMemo(
     () =>
@@ -31,6 +33,7 @@ export default function LibraryView({ items }: { items: LibraryItem[] }) {
   );
 
   const readCount = items.filter((i) => i.reading_status === "read").length;
+  const selected = selectedId ? items.find((i) => i.id === selectedId) ?? null : null;
 
   return (
     <div style={s.page}>
@@ -73,7 +76,7 @@ export default function LibraryView({ items }: { items: LibraryItem[] }) {
           </div>
         ) : (
           <div style={s.grid}>
-            {filtered.map((it) => <BookCard key={it.id} item={it} />)}
+            {filtered.map((it) => <BookCard key={it.id} item={it} onOpen={() => setSelectedId(it.id)} />)}
           </div>
         )}
       </main>
@@ -83,6 +86,7 @@ export default function LibraryView({ items }: { items: LibraryItem[] }) {
       </button>
 
       {showAdd && <AddBookModal onClose={() => setShowAdd(false)} />}
+      {selected && <BookDrawer item={selected} onClose={() => setSelectedId(null)} />}
     </div>
   );
 }
