@@ -4,7 +4,6 @@ import SectionPlaceholder from "@/components/SectionPlaceholder";
 export default function UstawieniaPage() {
   return (
     <SectionPlaceholder
-      eyebrow="TWOJE KONTO"
       title="Ustawienia i prywatność"
       description="Zdecyduj, co jest widoczne publicznie, i skonfiguruj powiadomienia."
       icon={Settings}

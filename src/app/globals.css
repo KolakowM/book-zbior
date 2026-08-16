@@ -1,19 +1,24 @@
-/* Tokeny designu — paleta i typografia. Design zostaje taki jak w prototypie. */
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap');
+/* Tokeny designu — świadoma paleta „antykwariat / druk". */
+@import url('https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap');
 
 :root {
-  --paper: #F2ECDD;
-  --ink: #1E2233;
-  --brass: #C9A227;
-  --terracotta: #B4632A;
-  --forest: #2F5D50;
-  --font-display: 'Fraunces', Georgia, serif;
-  --font-body: 'Inter', system-ui, sans-serif;
+  --bone: #ECE7DA;       /* powierzchnia strony */
+  --bone-2: #F3EFE4;     /* karty, elementy wyniesione */
+  --green: #153A2C;      /* kolor wiodący, ciemne sekcje */
+  --green-2: #1E4A38;
+  --ink: #17251F;        /* tekst główny */
+  --rust: #B0472A;       /* akcent, przyciski akcji */
+  --ochre: #C0871B;      /* akcent drugorzędny, oceny */
+  --muted: #5A5B50;      /* tekst drugorzędny */
+  --line: #DAD4C2;       /* obramowania */
+
+  --font-display: 'Spectral', Georgia, serif;
+  --font-body: 'Hanken Grotesk', system-ui, sans-serif;
 }
 
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
-body { background: var(--paper); color: var(--ink); font-family: var(--font-body); }
+body { background: var(--bone); color: var(--ink); font-family: var(--font-body); }
 button { font-family: inherit; }
 ::-webkit-scrollbar { width: 0; height: 0; }
 

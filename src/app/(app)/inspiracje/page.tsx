@@ -4,7 +4,6 @@ import SectionPlaceholder from "@/components/SectionPlaceholder";
 export default function InspiracjePage() {
   return (
     <SectionPlaceholder
-      eyebrow="ODKRYWAJ"
       title="Strefa inspiracji"
       description="Znajdź kolejną książkę dla siebie — z oceną czytelników, którzy już ją przeczytali."
       icon={Sparkles}

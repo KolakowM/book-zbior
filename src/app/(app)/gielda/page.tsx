@@ -4,7 +4,6 @@ import SectionPlaceholder from "@/components/SectionPlaceholder";
 export default function GieldaPage() {
   return (
     <SectionPlaceholder
-      eyebrow="WYMIANA"
       title="Giełda książek"
       description="Przeglądaj egzemplarze wystawione do wymiany przez czytelników w Twojej okolicy."
       icon={Store}

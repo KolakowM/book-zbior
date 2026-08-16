@@ -105,7 +105,7 @@ export default function AddBookModal({ onClose }: { onClose: () => void }) {
               <img src={coverUrl} alt={title} style={{ width: 44, height: 62, objectFit: "cover", borderRadius: 4, flexShrink: 0 }} />
             ) : null}
             <div>
-              <div style={{ fontWeight: 600, fontSize: 14, color: "#20303A" }}>{title || "Bez tytułu"}</div>
+              <div style={{ fontWeight: 600, fontSize: 14, color: "#17251F" }}>{title || "Bez tytułu"}</div>
               <div style={{ fontSize: 12, color: "#6C6A5C", marginTop: 2 }}>
                 {author || "autor nieznany"}{year ? ` · ${year}` : ""}{pages ? ` · ${pages} s.` : ""}
               </div>

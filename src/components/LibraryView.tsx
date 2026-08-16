@@ -40,8 +40,7 @@ export default function LibraryView({ items }: { items: LibraryItem[] }) {
       <header style={s.header}>
         <div style={s.headerTop}>
           <div>
-            <div style={s.eyebrow}>MOJA PÓŁKA</div>
-            <h1 style={s.h1}>Biblioteczka</h1>
+            <h1 style={s.h1}>Moja biblioteczka</h1>
           </div>
           <a href="/" style={s.avatarBtn} aria-label="Strona główna"><User size={18} /></a>
         </div>

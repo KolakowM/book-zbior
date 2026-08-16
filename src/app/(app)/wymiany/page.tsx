@@ -4,7 +4,6 @@ import SectionPlaceholder from "@/components/SectionPlaceholder";
 export default function WymianyPage() {
   return (
     <SectionPlaceholder
-      eyebrow="TWOJE TRANSAKCJE"
       title="Wymiany i wiadomości"
       description="Prowadź rozmowy o wymianie i śledź status każdej transakcji w jednym miejscu."
       icon={ArrowLeftRight}

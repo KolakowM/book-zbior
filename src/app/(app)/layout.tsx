@@ -18,7 +18,7 @@ export default async function AppLayout({
   if (!user) redirect("/login");
 
   return (
-    <div style={{ minHeight: "100vh", background: "#F4EEE0" }}>
+    <div style={{ minHeight: "100vh", background: "#ECE7DA" }}>
       <AppNav />
       <main>{children}</main>
     </div>

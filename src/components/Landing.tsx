@@ -1,204 +1,177 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
-import {
-  BookMarked, Barcode, MapPin, BarChart3, Star, ArrowRight, Search, Quote,
-} from "lucide-react";
+import { BookMarked, Barcode, Star, Repeat, BarChart3, ArrowRight, Search } from "lucide-react";
 
-const PAPER = "#F4EEE0";
-const CARD = "#FBF7EC";
-const INK = "#20303A";
-const FOREST = "#2F5D50";
-const BRASS = "#B88A2E";
-const MUTED = "#6C6A5C";
-
-const SPINES = ["#3D4A6B", "#6B3A3A", "#4A5D3A", "#5C4A6B", "#2F5D50", "#7A4A2A"];
-const SPINE_TITLES = ["Solaris", "Lód", "Bieguni", "Diuna", "Cyberiada", "Ślepnąc od świateł"];
+const GREEN = "#153A2C";
+const GREEN2 = "#1E4A38";
+const BONE = "#ECE7DA";
+const BONE2 = "#F3EFE4";
+const INK = "#17251F";
+const RUST = "#B0472A";
+const OCHRE = "#C0871B";
+const BONEDIM = "#9FB3A6";
 
 const FEATURES = [
-  { icon: Barcode, title: "Kataloguj po ISBN", text: "Zeskanuj kod przy regale — zapisujemy okładkę, autora, wydawcę i Twoją cenę zakupu." },
-  { icon: Star, title: "Recenzuj i oceniaj", text: "Wystawiaj gwiazdki, pisz recenzje i zobacz średnią ocen społeczności przy każdym tytule." },
-  { icon: MapPin, title: "Wymieniaj w okolicy", text: "Oznacz książkę do wymiany. Spotkajcie się osobiście — bez pośrednictwa i prowizji." },
-  { icon: BarChart3, title: "Śledź postępy", text: "Wyzwanie roczne, wydatki miesięczne, ulubieni autorzy i gatunki oraz podsumowanie roku." },
+  { icon: Barcode, h: "Kataloguj po ISBN", t: "Wpisujesz numer, resztę dopisujemy z bazy Biblioteki Narodowej: tytuł, autora, rok, liczbę stron. Polskie wydania też." },
+  { icon: Star, h: "Oceniaj i recenzuj", t: "Gwiazdki, notatki, recenzje. Przy każdym tytule widać, co o nim sądzą inni czytelnicy." },
+  { icon: Repeat, h: "Wymieniaj z sąsiadem", t: "Oznaczasz książkę jako dostępną. Umawiacie się bezpośrednio — bez prowizji, bez wysyłki na siłę." },
+  { icon: BarChart3, h: "Zobacz swój rok", t: "Ile przeczytałeś i za ile, jacy autorzy, jakie gatunki. Twój rok czytelniczy w liczbach." },
 ];
 
 const AUDIENCE = [
-  { emoji: "📚", title: "Kolekcjonerzy", text: "Masz setki książek i chcesz w końcu wiedzieć, co dokładnie stoi na półce i ile Cię kosztowało." },
-  { emoji: "🔖", title: "Mole książkowe", text: "Czytasz dużo i lubisz śledzić postępy, oceny i statystyki swojej pasji." },
-  { emoji: "🤝", title: "Wymieniacze", text: "Nadmiar półki wolisz wymienić z sąsiadem niż wyrzucić — lokalnie i bez opłat." },
+  { h: "Zbieraczom", t: "Setki tomów, które w końcu chcesz mieć spisane — z ceną, datą i miejscem zakupu." },
+  { h: "Czytającym dużo", t: "Śledzisz postępy, oceny i to, dokąd zmierza Twój rok czytelniczy." },
+  { h: "Wymieniającym się", t: "Wolisz oddać książkę sąsiadowi, niż patrzeć, jak kurzy się na półce." },
 ];
 
-function Spine({ color, title, h }: { color: string; title: string; h: number }) {
+const SPINES = ["#B0472A", "#C0871B", "#2E6B4F", "#7A4A2A", "#3D4A6B", "#8A3050", "#4A5D3A"];
+const SPINE_T = ["Solaris", "Lód", "Bieguni", "Cyberiada", "Diuna", "Ferdydurke", "Sklepy"];
+
+function Spine({ c, t, h }: { c: string; t: string; h: number }) {
   return (
-    <div style={{ width: 26, height: h, background: `linear-gradient(180deg, ${color}, ${color}D0)`,
-      borderRadius: "3px 3px 1px 1px", display: "flex", alignItems: "center", justifyContent: "center",
-      boxShadow: "inset -3px 0 6px rgba(0,0,0,0.25), inset 2px 0 3px rgba(255,255,255,0.15)" }}>
-      <span style={{ writingMode: "vertical-rl", transform: "rotate(180deg)", fontSize: 9,
-        color: "rgba(255,255,255,0.85)", fontWeight: 600, letterSpacing: 0.4, whiteSpace: "nowrap",
-        overflow: "hidden", maxHeight: h - 16, textOverflow: "ellipsis" }}>{title}</span>
+    <div style={{ width: 30, height: h, background: c, borderRadius: "2px 2px 0 0", display: "flex",
+      alignItems: "center", justifyContent: "center", boxShadow: "inset -4px 0 7px rgba(0,0,0,0.3), inset 3px 0 3px rgba(255,255,255,0.12)" }}>
+      <span style={{ writingMode: "vertical-rl", transform: "rotate(180deg)", fontSize: 10, color: "rgba(255,255,255,0.9)",
+        fontWeight: 600, letterSpacing: 0.3, whiteSpace: "nowrap", overflow: "hidden", maxHeight: h - 18, textOverflow: "ellipsis" }}>{t}</span>
     </div>
   );
 }
 
 export default function Landing({ isLoggedIn }: { isLoggedIn: boolean }) {
+  const primaryHref = isLoggedIn ? "/biblioteka" : "/login";
   return (
-    <div className="landing" style={styles.app}>
+    <div style={S.app}>
       <style>{css}</style>
 
-      {/* NAV */}
-      <header style={styles.nav}>
-        <div style={styles.navInner}>
-          <Link href="/" style={styles.logo}>
-            <BookMarked size={22} color={FOREST} />
-            <span style={styles.logoText}>Księgozbiór</span>
-          </Link>
-          <nav className="nav-links" style={styles.navLinks}>
-            <a href="#funkcje" style={styles.navLink}>Funkcje</a>
-            <a href="#dla-kogo" style={styles.navLink}>Dla kogo</a>
-            <a href="#misja" style={styles.navLink}>Nasza misja</a>
+      <header style={S.nav}>
+        <div style={S.navInner}>
+          <Link href="/" style={S.brand}><BookMarked size={22} color={GREEN} /><span style={S.brandText}>Księgozbiór</span></Link>
+          <nav className="navlinks" style={S.navLinks}>
+            <a href="#co" style={S.navLink}>Co potrafi</a>
+            <a href="#kogo" style={S.navLink}>Dla kogo</a>
+            <a href="#idea" style={S.navLink}>Nasza idea</a>
           </nav>
-          <div style={styles.navCta}>
+          <div style={S.navRight}>
             {isLoggedIn ? (
-              <Link href="/biblioteka" style={styles.navBtn}>Moja biblioteka</Link>
+              <Link href="/biblioteka" style={S.navBtn}>Moja biblioteka</Link>
             ) : (
               <>
-                <Link href="/login" style={styles.navGhost}>Zaloguj się</Link>
-                <Link href="/login" style={styles.navBtn}>Załóż konto</Link>
+                <Link href="/login" style={S.navGhost}>Zaloguj</Link>
+                <Link href="/login" style={S.navBtn}>Załóż konto</Link>
               </>
             )}
           </div>
         </div>
       </header>
 
-      {/* HERO */}
-      <section style={styles.hero}>
-        <div style={styles.heroGlow} />
-        <div className="hero-grid" style={styles.heroGrid}>
+      <section style={S.hero}>
+        <div className="herogrid" style={S.heroGrid}>
           <div>
-            <span style={styles.badge}>Biblioteka · Recenzje · Wymiana</span>
-            <h1 style={styles.h1}>
-              Twoja domowa biblioteka<br />
-              <span style={{ color: FOREST }}>wreszcie policzona</span>
-            </h1>
-            <p style={styles.lead}>
-              Zapisuj, co czytasz i za ile kupiłeś, pisz recenzje, pilnuj pożyczonych
-              egzemplarzy, a nadmiar półki wymieniaj z czytelnikami z sąsiedztwa.
+            <h1 style={S.h1}>Zapanuj nad półką.<br />Podziel się nią z okolicą.</h1>
+            <p style={S.lead}>
+              Skanujesz ISBN — my dopisujemy okładkę, autora i rok. Oceniasz, recenzujesz
+              i wystawiasz do wymiany książki, które masz już za sobą. Cała biblioteka w jednym miejscu,
+              i drugie życie dla tego, co przeczytane.
             </p>
-
-            <div style={styles.heroCtas}>
-              <Link href={isLoggedIn ? "/biblioteka" : "/login"} style={styles.btnPrimary}>
-                {isLoggedIn ? "Otwórz moją bibliotekę" : "Załóż darmowy księgozbiór"}
-              </Link>
-              <a href="#funkcje" style={styles.btnOutline}>Zobacz, co potrafi <ArrowRight size={16} /></a>
+            <div style={S.ctaRow}>
+              <Link href={primaryHref} style={S.btnRust}>{isLoggedIn ? "Otwórz moją bibliotekę" : "Załóż darmowy księgozbiór"}</Link>
+              <a href="#co" style={S.btnLine}>Zobacz, jak działa <ArrowRight size={16} /></a>
             </div>
 
-            <div style={styles.searchCard}>
-              <p style={styles.searchLabel}>SPRAWDŹ KSIĄŻKĘ BEZ REJESTRACJI</p>
-              <div className="search-row" style={styles.searchRow}>
-                <div style={styles.searchInputWrap}>
-                  <Search size={16} color={MUTED} />
-                  <input style={styles.searchInput} placeholder="Tytuł, autor lub ISBN…" />
+            <div style={S.searchCard}>
+              <div style={S.searchRow}>
+                <div style={S.searchField}>
+                  <Search size={16} color={BONEDIM} />
+                  <input style={S.searchInput} placeholder="Sprawdź tytuł albo ISBN…" />
                 </div>
-                <button style={styles.searchBtn}>Szukaj</button>
+                <button style={S.searchBtn}>Szukaj</button>
               </div>
-              <p style={styles.searchHint}>Dane książek z otwartej bazy Open Library.</p>
+              <p style={S.searchHint}>Bez rejestracji. Dane z Biblioteki Narodowej i Open Library.</p>
             </div>
           </div>
 
-          <div style={styles.heroVisual}>
-            <div style={styles.shelfWrap}>
-              <div style={styles.shelfRow}>
-                {SPINES.map((c, i) => (
-                  <Spine key={i} color={c} title={SPINE_TITLES[i]} h={150 + ((i * 37) % 40)} />
-                ))}
-              </div>
-              <div style={styles.plank} />
+          <div style={S.heroArt}>
+            <div style={S.shelfRow}>
+              {SPINES.map((c, i) => <Spine key={i} c={c} t={SPINE_T[i]} h={168 + ((i * 41) % 46)} />)}
             </div>
-            <div style={styles.statCard}>
-              <div style={styles.statItem}><div style={styles.statNum}>18/25</div><div style={styles.statLbl}>wyzwanie 2026</div></div>
-              <div style={styles.statDiv} />
-              <div style={styles.statItem}><div style={styles.statNum}>1 284</div><div style={styles.statLbl}>wymiany w miesiącu</div></div>
-              <div style={styles.statDiv} />
-              <div style={styles.statItem}><div style={styles.statNum}>4,9</div><div style={styles.statLbl}>ocena wymian</div></div>
+            <div style={S.plank} />
+            <div style={S.statStrip}>
+              <div><div style={S.statN}>18 / 25</div><div style={S.statL}>rok czytelniczy</div></div>
+              <div style={S.statSep} />
+              <div><div style={S.statN}>4 820</div><div style={S.statL}>stron w tym roku</div></div>
+              <div style={S.statSep} />
+              <div><div style={S.statN}>12</div><div style={S.statL}>wymian</div></div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* FUNKCJE */}
-      <section id="funkcje" style={styles.section}>
-        <div style={styles.sectionHead}>
-          <span style={styles.eyebrow}>CO MOŻESZ U NAS ZROBIĆ</span>
-          <h2 style={styles.h2}>Wszystko dla Twojego księgozbioru</h2>
-        </div>
-        <div className="feature-grid" style={styles.featureGrid}>
-          {FEATURES.map((f) => (
-            <div key={f.title} className="feature-card" style={styles.featureCard}>
-              <div style={styles.featureIcon}><f.icon size={22} color={FOREST} /></div>
-              <h3 style={styles.h3}>{f.title}</h3>
-              <p style={styles.cardText}>{f.text}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* DLA KOGO */}
-      <section id="dla-kogo" style={{ ...styles.section, background: CARD, borderTop: "1px solid #E6DFCB", borderBottom: "1px solid #E6DFCB", maxWidth: "none" }}>
-        <div style={styles.sectionInner}>
-          <div style={styles.sectionHead}>
-            <span style={styles.eyebrow}>DLA KOGO JESTEŚMY</span>
-            <h2 style={styles.h2}>Zbudowane dla ludzi, którzy kochają papier</h2>
+      <section id="co" style={S.section}>
+        <div className="cogrid" style={S.coGrid}>
+          <div style={S.coIntro}>
+            <h2 style={S.h2}>Wszystko, czego potrzebuje Twój księgozbiór</h2>
+            <p style={S.coIntroText}>
+              Od zeskanowania pierwszego grzbietu po podsumowanie całego roku. Bez arkuszy,
+              bez przepisywania z okładki.
+            </p>
           </div>
-          <div className="feature-grid" style={styles.audienceGrid}>
-            {AUDIENCE.map((a) => (
-              <div key={a.title} style={styles.audienceCard}>
-                <div style={styles.audienceEmoji}>{a.emoji}</div>
-                <h3 style={styles.h3}>{a.title}</h3>
-                <p style={styles.cardText}>{a.text}</p>
+          <div style={S.featureList}>
+            {FEATURES.map((f) => (
+              <div key={f.h} style={S.featureRow}>
+                <div style={S.featureIcon}><f.icon size={20} color={RUST} /></div>
+                <div>
+                  <h3 style={S.h3}>{f.h}</h3>
+                  <p style={S.featureText}>{f.t}</p>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* MISJA */}
-      <section id="misja" style={styles.section}>
-        <div style={styles.missionWrap}>
-          <Quote size={40} color={BRASS} style={{ opacity: 0.6 }} />
-          <p style={styles.missionText}>
-            Wierzymy, że przeczytana książka nie powinna kurzyć się na półce ani lądować
-            w koszu. Budujemy miejsce, w którym łatwo ogarnąć własny księgozbiór,
-            dzielić się opiniami i dać książkom drugie życie — wymieniając je bezpośrednio
-            z ludźmi z okolicy, bez pośredników i prowizji.
+      <section id="kogo" style={S.bandBone}>
+        <div style={S.sectionInner}>
+          <h2 style={{ ...S.h2, marginBottom: 40 }}>Dla ludzi, którzy trzymają się papieru</h2>
+          <div className="kogogrid" style={S.audGrid}>
+            {AUDIENCE.map((a) => (
+              <div key={a.h}>
+                <div style={S.audRule} />
+                <h3 style={S.audH}>{a.h}</h3>
+                <p style={S.audT}>{a.t}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="idea" style={S.idea}>
+        <div style={S.ideaInner}>
+          <p style={S.ideaQuote}>
+            Przeczytana książka nie powinna kończyć w pudle w piwnicy. Powinna trafić do kogoś,
+            kto jej jeszcze nie zna — najlepiej z sąsiedztwa.
           </p>
-          <p style={styles.missionSign}>— zespół Księgozbioru</p>
+          <p style={S.ideaSign}>To dla nas cały pomysł na Księgozbiór.</p>
         </div>
       </section>
 
-      {/* CTA */}
-      <section id="zaloz" style={styles.ctaBand}>
-        <h2 style={styles.ctaTitle}>Zacznij od jednej książki z półki</h2>
-        <p style={styles.ctaSub}>Załóż darmowe konto, dodaj pierwszy tytuł, a reszta biblioteki dopisze się sama.</p>
-        <div style={styles.ctaBtns}>
-          <Link href={isLoggedIn ? "/biblioteka" : "/login"} style={styles.btnPrimaryLg}>
-            {isLoggedIn ? "Otwórz bibliotekę" : "Załóż darmowe konto"}
-          </Link>
-          {!isLoggedIn && <Link href="/login" style={styles.btnOutlineLg}>Mam już konto — zaloguj</Link>}
+      <section id="start" style={S.start}>
+        <h2 style={S.startH}>Zacznij od jednej książki z półki</h2>
+        <p style={S.startT}>Załóż darmowe konto i zeskanuj pierwszy grzbiet. Reszta biblioteki dopisze się sama.</p>
+        <div style={S.ctaRow2}>
+          <Link href={primaryHref} style={S.btnRust}>{isLoggedIn ? "Otwórz bibliotekę" : "Załóż darmowe konto"}</Link>
+          {!isLoggedIn && <Link href="/login" style={S.btnLineDark}>Mam już konto</Link>}
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer style={styles.footer}>
-        <div style={styles.footerInner}>
-          <div style={styles.logo}>
-            <BookMarked size={20} color={FOREST} />
-            <span style={{ ...styles.logoText, fontSize: 17 }}>Księgozbiór</span>
+      <footer style={S.footer}>
+        <div style={S.footerInner}>
+          <span style={{ ...S.brandText, color: BONE }}>Księgozbiór</span>
+          <div style={S.footerLinks}>
+            <a href="#co" style={S.footerLink}>Co potrafi</a>
+            <a href="#kogo" style={S.footerLink}>Dla kogo</a>
+            <a href="#idea" style={S.footerLink}>Idea</a>
           </div>
-          <div style={styles.footerLinks}>
-            <a href="#funkcje" style={styles.footerLink}>Funkcje</a>
-            <a href="#dla-kogo" style={styles.footerLink}>Dla kogo</a>
-            <a href="#misja" style={styles.footerLink}>Misja</a>
-          </div>
-          <p style={styles.footerCopy}>© 2026 Księgozbiór</p>
+          <span style={S.footerCopy}>© 2026</span>
         </div>
       </footer>
     </div>
@@ -206,89 +179,81 @@ export default function Landing({ isLoggedIn }: { isLoggedIn: boolean }) {
 }
 
 const css = `
-.landing .feature-card { transition: transform .2s ease, box-shadow .2s ease; }
-.landing .feature-card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px -24px rgba(32,48,58,0.5); }
-@media (max-width: 860px) {
-  .landing .nav-links { display: none !important; }
-  .landing .hero-grid { grid-template-columns: 1fr !important; }
-  .landing .feature-grid { grid-template-columns: 1fr 1fr !important; }
-  .landing .search-row { flex-direction: column !important; }
-}
-@media (max-width: 560px) {
-  .landing .feature-grid { grid-template-columns: 1fr !important; }
+.navlinks { display: flex; }
+@media (max-width: 880px) {
+  .navlinks { display: none !important; }
+  .herogrid, .cogrid, .kogogrid { grid-template-columns: 1fr !important; }
 }
 `;
 
-const styles: Record<string, CSSProperties> = {
-  app: { fontFamily: "var(--font-body)", background: PAPER, color: INK, minHeight: "100vh" },
+const S: Record<string, CSSProperties> = {
+  app: { fontFamily: "var(--font-body)", background: BONE, color: INK },
 
-  nav: { position: "sticky", top: 0, zIndex: 30, background: "rgba(244,238,224,0.85)", backdropFilter: "blur(10px)", borderBottom: "1px solid #E6DFCB" },
-  navInner: { maxWidth: 1200, margin: "0 auto", padding: "0 24px", height: 66, display: "flex", alignItems: "center", justifyContent: "space-between" },
-  logo: { display: "flex", alignItems: "center", gap: 8 },
-  logoText: { fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 600, color: INK },
-  navLinks: { display: "flex", gap: 28 },
-  navLink: { fontSize: 14, fontWeight: 500, color: MUTED },
-  navCta: { display: "flex", alignItems: "center", gap: 14 },
-  navGhost: { fontSize: 14, fontWeight: 600, color: INK },
-  navBtn: { fontSize: 14, fontWeight: 600, color: "#fff", background: FOREST, padding: "9px 16px", borderRadius: 10 },
+  nav: { position: "sticky", top: 0, zIndex: 30, background: "rgba(236,231,218,0.92)", backdropFilter: "blur(10px)", borderBottom: "1px solid #DAD4C2" },
+  navInner: { maxWidth: 1160, margin: "0 auto", padding: "0 24px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" },
+  brand: { display: "flex", alignItems: "center", gap: 9 },
+  brandText: { fontFamily: "var(--font-display)", fontSize: 21, fontWeight: 600, color: INK },
+  navLinks: { gap: 30 },
+  navLink: { fontSize: 14.5, fontWeight: 500, color: "#4A5750" },
+  navRight: { display: "flex", alignItems: "center", gap: 18 },
+  navGhost: { fontSize: 14.5, fontWeight: 600, color: INK },
+  navBtn: { fontSize: 14.5, fontWeight: 600, color: BONE, background: RUST, padding: "9px 17px", borderRadius: 8 },
 
-  hero: { position: "relative", overflow: "hidden", borderBottom: "1px solid #E6DFCB" },
-  heroGlow: { position: "absolute", top: -120, right: -120, width: 480, height: 480, borderRadius: "50%", background: `radial-gradient(circle, ${BRASS}33, transparent 65%)`, pointerEvents: "none" },
-  heroGrid: { maxWidth: 1200, margin: "0 auto", padding: "72px 24px", display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 56, alignItems: "center" },
-  badge: { display: "inline-block", fontSize: 12, fontWeight: 600, letterSpacing: 1, color: FOREST, background: `${FOREST}14`, padding: "6px 14px", borderRadius: 999, marginBottom: 20 },
-  h1: { fontFamily: "var(--font-display)", fontSize: 52, lineHeight: 1.05, fontWeight: 600, letterSpacing: "-0.5px" },
-  lead: { fontSize: 18, lineHeight: 1.6, color: MUTED, marginTop: 20, maxWidth: 520 },
-  heroCtas: { display: "flex", flexWrap: "wrap", gap: 12, marginTop: 30 },
-  btnPrimary: { background: FOREST, color: "#fff", fontSize: 15, fontWeight: 600, padding: "14px 22px", borderRadius: 12, boxShadow: "0 8px 20px -8px rgba(47,93,80,0.6)" },
-  btnOutline: { display: "inline-flex", alignItems: "center", gap: 7, background: "transparent", color: INK, fontSize: 15, fontWeight: 600, padding: "14px 22px", borderRadius: 12, border: "1px solid #D8CFB8" },
+  hero: { background: GREEN, color: BONE },
+  heroGrid: { maxWidth: 1160, margin: "0 auto", padding: "84px 24px 90px", display: "grid", gridTemplateColumns: "1.05fr 0.95fr", gap: 60, alignItems: "center" },
+  h1: { fontFamily: "var(--font-display)", fontSize: 58, lineHeight: 1.04, fontWeight: 600, letterSpacing: "-0.5px", color: "#F4EFE2" },
+  lead: { fontSize: 18, lineHeight: 1.65, color: "#CFD8CE", marginTop: 22, maxWidth: "60ch" },
+  ctaRow: { display: "flex", flexWrap: "wrap", gap: 14, marginTop: 32 },
+  btnRust: { background: RUST, color: "#fff", fontSize: 15.5, fontWeight: 600, padding: "14px 24px", borderRadius: 9 },
+  btnLine: { display: "inline-flex", alignItems: "center", gap: 8, color: "#F4EFE2", fontSize: 15.5, fontWeight: 600, padding: "14px 22px", borderRadius: 9, border: "1px solid rgba(244,239,226,0.3)" },
 
-  searchCard: { marginTop: 36, background: CARD, border: "1px solid #E6DFCB", borderRadius: 16, padding: 18, maxWidth: 520, boxShadow: "0 18px 40px -28px rgba(32,48,58,0.5)" },
-  searchLabel: { fontSize: 11, fontWeight: 700, letterSpacing: 1.5, color: BRASS, marginBottom: 12 },
+  searchCard: { marginTop: 38, maxWidth: 480 },
   searchRow: { display: "flex", gap: 10 },
-  searchInputWrap: { flex: 1, display: "flex", alignItems: "center", gap: 8, background: PAPER, border: "1px solid #E0D7C0", borderRadius: 10, padding: "11px 12px" },
-  searchInput: { flex: 1, border: "none", background: "transparent", fontSize: 14, color: INK, outline: "none" },
-  searchBtn: { background: INK, color: "#fff", border: "none", fontSize: 14, fontWeight: 600, padding: "0 22px", borderRadius: 10, cursor: "pointer" },
-  searchHint: { fontSize: 12, color: MUTED, marginTop: 10 },
+  searchField: { flex: 1, display: "flex", alignItems: "center", gap: 8, background: GREEN2, border: "1px solid #2C5A45", borderRadius: 9, padding: "12px 13px" },
+  searchInput: { flex: 1, border: "none", background: "transparent", fontSize: 14.5, color: BONE, outline: "none" },
+  searchBtn: { background: OCHRE, color: "#231A05", border: "none", fontSize: 14.5, fontWeight: 700, padding: "0 22px", borderRadius: 9, cursor: "pointer" },
+  searchHint: { fontSize: 12.5, color: "#9FB3A6", marginTop: 10 },
 
-  heroVisual: { position: "relative" },
-  shelfWrap: { display: "flex", flexDirection: "column", alignItems: "center" },
-  shelfRow: { display: "flex", alignItems: "flex-end", gap: 5, height: 200 },
-  plank: { height: 12, width: "100%", background: "linear-gradient(180deg, #8A6A46, #6E5236)", borderRadius: 3, marginTop: 2, boxShadow: "0 12px 24px -14px rgba(32,48,58,0.6)" },
-  statCard: { marginTop: 26, background: CARD, border: "1px solid #E6DFCB", borderRadius: 16, padding: "18px 12px", display: "flex", alignItems: "center", justifyContent: "space-around", boxShadow: "0 18px 40px -28px rgba(32,48,58,0.5)" },
-  statItem: { textAlign: "center" },
-  statNum: { fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 600, color: INK },
-  statLbl: { fontSize: 11, color: MUTED, marginTop: 3 },
-  statDiv: { width: 1, height: 34, background: "#E0D7C0" },
+  heroArt: { display: "flex", flexDirection: "column", alignItems: "center" },
+  shelfRow: { display: "flex", alignItems: "flex-end", gap: 6, height: 216 },
+  plank: { width: "100%", maxWidth: 360, height: 13, background: "linear-gradient(180deg,#5A4326,#3E2E19)", borderRadius: 2, marginTop: 2 },
+  statStrip: { marginTop: 30, display: "flex", alignItems: "center", gap: 22 },
+  statN: { fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 600, color: "#F4EFE2" },
+  statL: { fontSize: 12, color: "#9FB3A6", marginTop: 2 },
+  statSep: { width: 1, height: 32, background: "#2C5A45" },
 
-  section: { maxWidth: 1200, margin: "0 auto", padding: "72px 24px" },
-  sectionInner: { maxWidth: 1200, margin: "0 auto" },
-  sectionHead: { textAlign: "center", maxWidth: 620, margin: "0 auto 44px" },
-  eyebrow: { fontSize: 12, fontWeight: 700, letterSpacing: 2, color: BRASS },
-  h2: { fontFamily: "var(--font-display)", fontSize: 34, fontWeight: 600, marginTop: 10, lineHeight: 1.15 },
-  featureGrid: { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20 },
-  featureCard: { background: CARD, border: "1px solid #E6DFCB", borderRadius: 16, padding: 24 },
-  featureIcon: { width: 46, height: 46, borderRadius: 12, background: `${FOREST}14`, display: "grid", placeItems: "center", marginBottom: 16 },
-  h3: { fontFamily: "var(--font-display)", fontSize: 19, fontWeight: 600 },
-  cardText: { fontSize: 14, lineHeight: 1.55, color: MUTED, marginTop: 8 },
+  section: { maxWidth: 1160, margin: "0 auto", padding: "84px 24px" },
+  sectionInner: { maxWidth: 1160, margin: "0 auto" },
+  coGrid: { display: "grid", gridTemplateColumns: "0.85fr 1.15fr", gap: 56 },
+  coIntro: { position: "sticky", top: 90, alignSelf: "start" },
+  h2: { fontFamily: "var(--font-display)", fontSize: 38, fontWeight: 600, lineHeight: 1.12, color: INK },
+  coIntroText: { fontSize: 17, lineHeight: 1.6, color: "#5A5B50", marginTop: 16, maxWidth: "34ch" },
+  featureList: { display: "flex", flexDirection: "column", gap: 4 },
+  featureRow: { display: "flex", gap: 18, padding: "22px 0", borderTop: "1px solid #DAD4C2" },
+  featureIcon: { width: 42, height: 42, borderRadius: 9, background: "#E1DAC8", display: "grid", placeItems: "center", flexShrink: 0 },
+  h3: { fontFamily: "var(--font-display)", fontSize: 21, fontWeight: 600, color: INK },
+  featureText: { fontSize: 15.5, lineHeight: 1.6, color: "#5A5B50", marginTop: 6, maxWidth: "56ch" },
 
-  audienceGrid: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 },
-  audienceCard: { background: PAPER, border: "1px solid #E6DFCB", borderRadius: 16, padding: 28, textAlign: "center" },
-  audienceEmoji: { fontSize: 38, marginBottom: 10 },
+  bandBone: { background: BONE2, borderTop: "1px solid #DAD4C2", borderBottom: "1px solid #DAD4C2", padding: "84px 24px" },
+  audGrid: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 40 },
+  audRule: { width: 44, height: 3, background: RUST, marginBottom: 18 },
+  audH: { fontFamily: "var(--font-display)", fontSize: 24, fontWeight: 600, color: INK },
+  audT: { fontSize: 16, lineHeight: 1.6, color: "#5A5B50", marginTop: 10 },
 
-  missionWrap: { maxWidth: 760, margin: "0 auto", textAlign: "center" },
-  missionText: { fontFamily: "var(--font-display)", fontSize: 26, lineHeight: 1.5, fontWeight: 400, color: INK, marginTop: 16 },
-  missionSign: { fontSize: 14, color: MUTED, marginTop: 20, fontStyle: "italic" },
+  idea: { background: GREEN, color: BONE, padding: "96px 24px" },
+  ideaInner: { maxWidth: 820, margin: "0 auto", textAlign: "center" },
+  ideaQuote: { fontFamily: "var(--font-display)", fontSize: 32, lineHeight: 1.42, fontWeight: 500, color: "#F4EFE2" },
+  ideaSign: { fontSize: 15, color: OCHRE, marginTop: 22, fontWeight: 600 },
 
-  ctaBand: { background: INK, color: PAPER, textAlign: "center", padding: "72px 24px" },
-  ctaTitle: { fontFamily: "var(--font-display)", fontSize: 36, fontWeight: 600 },
-  ctaSub: { fontSize: 16, color: "#B9C2C0", marginTop: 12, maxWidth: 520, marginLeft: "auto", marginRight: "auto" },
-  ctaBtns: { display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 12, marginTop: 28 },
-  btnPrimaryLg: { background: BRASS, color: INK, fontSize: 16, fontWeight: 700, padding: "15px 26px", borderRadius: 12 },
-  btnOutlineLg: { background: "transparent", color: PAPER, fontSize: 16, fontWeight: 600, padding: "15px 26px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.25)" },
+  start: { maxWidth: 1160, margin: "0 auto", padding: "90px 24px", textAlign: "center" },
+  startH: { fontFamily: "var(--font-display)", fontSize: 40, fontWeight: 600, color: INK },
+  startT: { fontSize: 17, color: "#5A5B50", marginTop: 14, maxWidth: "50ch", marginLeft: "auto", marginRight: "auto", lineHeight: 1.6 },
+  ctaRow2: { display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 14, marginTop: 30 },
+  btnLineDark: { color: INK, fontSize: 15.5, fontWeight: 600, padding: "14px 24px", borderRadius: 9, border: "1px solid #C7C0AC" },
 
-  footer: { background: CARD, borderTop: "1px solid #E6DFCB" },
-  footerInner: { maxWidth: 1200, margin: "0 auto", padding: "28px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 },
-  footerLinks: { display: "flex", gap: 22, flexWrap: "wrap" },
-  footerLink: { fontSize: 13, color: MUTED, fontWeight: 500 },
-  footerCopy: { fontSize: 13, color: MUTED },
+  footer: { background: GREEN, color: BONE },
+  footerInner: { maxWidth: 1160, margin: "0 auto", padding: "26px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 14 },
+  footerLinks: { display: "flex", gap: 22 },
+  footerLink: { fontSize: 13.5, color: "#9FB3A6" },
+  footerCopy: { fontSize: 13.5, color: "#9FB3A6" },
 };

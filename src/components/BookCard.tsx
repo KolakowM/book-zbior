@@ -60,8 +60,8 @@ export default function BookCard({ item, onOpen }: { item: LibraryItem; onOpen: 
           <div style={s.stars}>
             {[1, 2, 3, 4, 5].map((n) => (
               <Star key={n} size={11}
-                    fill={n <= item.user_rating! ? "#C9A227" : "none"}
-                    color={n <= item.user_rating! ? "#C9A227" : "#B8AC93"} strokeWidth={1.5} />
+                    fill={n <= item.user_rating! ? "#C0871B" : "none"}
+                    color={n <= item.user_rating! ? "#C0871B" : "#B7B09A"} strokeWidth={1.5} />
             ))}
           </div>
         ) : null}
@@ -75,6 +75,6 @@ export default function BookCard({ item, onOpen }: { item: LibraryItem; onOpen: 
 
 const swapBadge: React.CSSProperties = {
   position: "absolute", top: 10, right: 10, width: 22, height: 22, borderRadius: "50%",
-  background: "#C9A227", color: "#20303A", display: "grid", placeItems: "center", zIndex: 3,
+  background: "#C0871B", color: "#231A05", display: "grid", placeItems: "center", zIndex: 3,
   boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
 };

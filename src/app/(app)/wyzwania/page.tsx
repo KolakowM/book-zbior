@@ -4,7 +4,6 @@ import SectionPlaceholder from "@/components/SectionPlaceholder";
 export default function WyzwaniaPage() {
   return (
     <SectionPlaceholder
-      eyebrow="TWOJA PASJA W LICZBACH"
       title="Wyzwania i statystyki"
       description="Podsumowanie roku czytelniczego: postępy, wydatki i ulubieni autorzy."
       icon={Trophy}

@@ -7,11 +7,12 @@ import { STATUSES, STATUS_KEYS } from "@/lib/statuses";
 import { updateStatus, updateRating, saveReview, toggleSwap, getBookExtras } from "@/lib/actions/library";
 import type { LibraryItem, ReadingStatus } from "@/lib/types";
 
-const PAPER = "#F4EEE0";
-const INK = "#20303A";
-const FOREST = "#2F5D50";
-const BRASS = "#B88A2E";
-const MUTED = "#6C6A5C";
+const PAPER = "#ECE7DA";
+const INK = "#17251F";
+const FOREST = "#153A2C";
+const BRASS = "#B0472A";
+const OCHRE = "#C0871B";
+const MUTED = "#5A5B50";
 
 export default function BookDrawer({ item, onClose }: { item: LibraryItem; onClose: () => void }) {
   const [show, setShow] = useState(false);
@@ -117,7 +118,7 @@ export default function BookDrawer({ item, onClose }: { item: LibraryItem; onClo
           <div style={{ display: "flex", gap: 6 }}>
             {[1, 2, 3, 4, 5].map((n) => (
               <button key={n} onClick={() => pickRating(n)} style={starBtn} aria-label={`Ocena ${n}`}>
-                <Star size={30} fill={n <= rating ? "#C9A227" : "none"} color={n <= rating ? "#C9A227" : "#C4B896"} strokeWidth={1.4} />
+                <Star size={30} fill={n <= rating ? "#C0871B" : "none"} color={n <= rating ? "#C0871B" : "#C7BE9E"} strokeWidth={1.4} />
               </button>
             ))}
           </div>
@@ -190,15 +191,15 @@ const facts: React.CSSProperties = { display: "flex", flexWrap: "wrap", gap: 12,
 const fact: React.CSSProperties = { display: "flex", alignItems: "center", gap: 5, fontSize: 12, color: MUTED };
 const sectionLabel: React.CSSProperties = { fontSize: 12, letterSpacing: 1.2, textTransform: "uppercase", fontWeight: 700, color: BRASS, margin: "22px 0 10px" };
 const statusPicker: React.CSSProperties = { display: "flex", flexWrap: "wrap", gap: 8 };
-const statusOpt: React.CSSProperties = { display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 500, padding: "8px 12px", borderRadius: 999, border: "1px solid #D3C9B4", background: "#FBF7EC", color: MUTED, cursor: "pointer" };
+const statusOpt: React.CSSProperties = { display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 500, padding: "8px 12px", borderRadius: 999, border: "1px solid #D3C9B4", background: "#F3EFE4", color: MUTED, cursor: "pointer" };
 const dot: React.CSSProperties = { width: 8, height: 8, borderRadius: "50%", flexShrink: 0 };
 const starBtn: React.CSSProperties = { background: "none", border: "none", padding: 2, cursor: "pointer" };
-const swapToggle: React.CSSProperties = { width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 22, padding: "13px", borderRadius: 12, border: "1px dashed #C4B896", background: "#FBF7EC", color: MUTED, fontSize: 14, fontWeight: 500, cursor: "pointer" };
-const swapOn: React.CSSProperties = { background: "#C9A22722", borderColor: BRASS, borderStyle: "solid", color: "#7A5B00" };
-const reviewBox: React.CSSProperties = { background: "#FBF7EC", border: "1px solid #E6DFCB", borderRadius: 14, padding: 16 };
+const swapToggle: React.CSSProperties = { width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 22, padding: "13px", borderRadius: 12, border: "1px dashed #C7BE9E", background: "#F3EFE4", color: MUTED, fontSize: 14, fontWeight: 500, cursor: "pointer" };
+const swapOn: React.CSSProperties = { background: "#C0871B22", borderColor: BRASS, borderStyle: "solid", color: "#7A5B00" };
+const reviewBox: React.CSSProperties = { background: "#F3EFE4", border: "1px solid #DAD4C2", borderRadius: 14, padding: 16 };
 const reviewText: React.CSSProperties = { fontSize: 15, lineHeight: 1.55, color: "#3A3527", margin: 0, fontStyle: "italic", whiteSpace: "pre-wrap" };
 const editReviewBtn: React.CSSProperties = { marginTop: 10, background: "none", border: "none", color: BRASS, fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 5, cursor: "pointer", padding: 0 };
-const textarea: React.CSSProperties = { width: "100%", minHeight: 100, border: "1px solid #D3C9B4", background: "#FBF7EC", borderRadius: 12, padding: 12, fontSize: 15, color: INK, fontFamily: "var(--font-body)", resize: "vertical", outline: "none", lineHeight: 1.5 };
+const textarea: React.CSSProperties = { width: "100%", minHeight: 100, border: "1px solid #D3C9B4", background: "#F3EFE4", borderRadius: 12, padding: 12, fontSize: 15, color: INK, fontFamily: "var(--font-body)", resize: "vertical", outline: "none", lineHeight: 1.5 };
 const saveReviewBtn: React.CSSProperties = { display: "flex", alignItems: "center", gap: 6, background: FOREST, color: "#fff", border: "none", padding: "11px 18px", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer" };
 const cancelReviewBtn: React.CSSProperties = { background: "transparent", border: "1px solid #D3C9B4", color: MUTED, padding: "11px 18px", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer" };
 const hint: React.CSSProperties = { fontSize: 13, color: MUTED, marginTop: 10 };

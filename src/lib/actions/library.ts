@@ -75,3 +75,97 @@ export async function updateStatus(id: string, status: ReadingStatus) {
   if (error) throw error;
   revalidatePath("/biblioteka");
 }
+
+// ─── Karta książki: ocena, recenzja, wymiana ───────────────────────
+
+export async function updateRating(id: string, rating: number) {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("user_library")
+    .update({ user_rating: rating || null })
+    .eq("id", id);
+  if (error) throw error;
+  revalidatePath("/biblioteka");
+}
+
+// Recenzja publiczna wymaga oceny 1–5 (ograniczenie w bazie).
+export async function saveReview(bookId: string, body: string, rating: number) {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Musisz być zalogowany.");
+  if (rating < 1 || rating > 5) throw new Error("Najpierw oceń książkę.");
+
+  const { error } = await supabase.from("reviews").upsert(
+    {
+      user_id: user.id,
+      book_id: bookId,
+      body: body.trim() || null,
+      rating,
+      is_public: true,
+    },
+    { onConflict: "user_id,book_id" }
+  );
+  if (error) throw error;
+  revalidatePath("/biblioteka");
+}
+
+// Włącza/wyłącza dostępność egzemplarza do wymiany (tabela listings).
+export async function toggleSwap(userLibraryId: string, on: boolean) {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Musisz być zalogowany.");
+
+  if (on) {
+    const { error } = await supabase.from("listings").insert({
+      user_id: user.id,
+      user_library_id: userLibraryId,
+      status: "active",
+    });
+    if (error) throw error;
+    await supabase
+      .from("user_library")
+      .update({ physical_state: "on_exchange" })
+      .eq("id", userLibraryId);
+  } else {
+    const { error } = await supabase
+      .from("listings")
+      .delete()
+      .eq("user_library_id", userLibraryId)
+      .eq("user_id", user.id);
+    if (error) throw error;
+    await supabase
+      .from("user_library")
+      .update({ physical_state: "in_library" })
+      .eq("id", userLibraryId);
+  }
+  revalidatePath("/biblioteka");
+}
+
+// Dociąga dane karty, których nie ma w podstawowym zapytaniu półki.
+export async function getBookExtras(userLibraryId: string, bookId: string) {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { reviewBody: "", forExchange: false };
+
+  const { data: review } = await supabase
+    .from("reviews")
+    .select("body")
+    .eq("user_id", user.id)
+    .eq("book_id", bookId)
+    .maybeSingle();
+
+  const { data: listing } = await supabase
+    .from("listings")
+    .select("id")
+    .eq("user_library_id", userLibraryId)
+    .eq("status", "active")
+    .maybeSingle();
+
+  return { reviewBody: review?.body ?? "", forExchange: !!listing };
+}

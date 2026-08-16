@@ -4,7 +4,6 @@ import SectionPlaceholder from "@/components/SectionPlaceholder";
 export default function ProfilPage() {
   return (
     <SectionPlaceholder
-      eyebrow="TWOJA WIZYTÓWKA"
       title="Mój profil"
       description="Publiczna wizytówka czytelnika: półka, recenzje i oceny wymian."
       icon={User}

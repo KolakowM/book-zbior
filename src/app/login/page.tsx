@@ -20,10 +20,7 @@ export default function LoginPage() {
       if (mode === "signup") {
         const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
-        // Profil zakłada trigger w bazie (supabase/02_profile_trigger.sql).
-        setMsg(
-          "Konto utworzone. Jeśli włączone jest potwierdzanie e-maila, sprawdź skrzynkę. W innym wypadku możesz się zalogować."
-        );
+        setMsg("Konto utworzone. Jeśli włączone jest potwierdzanie e-maila, sprawdź skrzynkę. W innym wypadku możesz się zalogować.");
         setMode("login");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -41,8 +38,8 @@ export default function LoginPage() {
   return (
     <div style={wrap}>
       <div style={card}>
-        <div style={eyebrow}>KSIĘGOZBIÓR</div>
         <h1 style={h1}>{mode === "login" ? "Zaloguj się" : "Załóż konto"}</h1>
+        <p style={sub}>Twój księgozbiór, recenzje i wymiana książek w jednym miejscu.</p>
 
         <label style={label}>E-mail</label>
         <input style={field} type="email" value={email}
@@ -67,12 +64,12 @@ export default function LoginPage() {
   );
 }
 
-const wrap: React.CSSProperties = { minHeight: "100vh", display: "grid", placeItems: "center", background: "#1E2233", padding: 20 };
-const card: React.CSSProperties = { width: "100%", maxWidth: 380, background: "#F2ECDD", borderRadius: 20, padding: "28px 24px" };
-const eyebrow: React.CSSProperties = { fontSize: 11, letterSpacing: 2.5, color: "#B4632A", fontWeight: 600 };
-const h1: React.CSSProperties = { fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 600, margin: "4px 0 20px", color: "#1E2233" };
-const label: React.CSSProperties = { display: "block", fontSize: 12, fontWeight: 600, color: "#5A5240", margin: "0 0 6px" };
-const field: React.CSSProperties = { width: "100%", border: "1px solid #D3C9B4", background: "#FAF6EC", borderRadius: 10, padding: 12, fontSize: 15, marginBottom: 14, outline: "none", color: "#1E2233" };
-const message: React.CSSProperties = { fontSize: 13, color: "#7A5B00", background: "#FBF3DA", border: "1px solid #E9D9A6", borderRadius: 8, padding: 10, margin: "0 0 14px" };
-const primary: React.CSSProperties = { width: "100%", background: "#B4632A", color: "#fff", border: "none", padding: 14, borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: "pointer" };
-const switchBtn: React.CSSProperties = { width: "100%", background: "none", border: "none", color: "#5A5240", fontSize: 13, marginTop: 14, cursor: "pointer" };
+const wrap: React.CSSProperties = { minHeight: "100vh", display: "grid", placeItems: "center", background: "#153A2C", padding: 20 };
+const card: React.CSSProperties = { width: "100%", maxWidth: 390, background: "#ECE7DA", borderRadius: 18, padding: "30px 26px" };
+const h1: React.CSSProperties = { fontFamily: "var(--font-display)", fontSize: 30, fontWeight: 600, margin: "0 0 6px", color: "#17251F" };
+const sub: React.CSSProperties = { fontSize: 14, color: "#5A5B50", margin: "0 0 22px", lineHeight: 1.5 };
+const label: React.CSSProperties = { display: "block", fontSize: 12, fontWeight: 600, color: "#5A5B50", margin: "0 0 6px" };
+const field: React.CSSProperties = { width: "100%", border: "1px solid #DAD4C2", background: "#F3EFE4", borderRadius: 9, padding: 12, fontSize: 15, marginBottom: 14, outline: "none", color: "#17251F" };
+const message: React.CSSProperties = { fontSize: 13, color: "#7A2F16", background: "#F0E2DC", border: "1px solid #E3C7BC", borderRadius: 8, padding: 10, margin: "0 0 14px", lineHeight: 1.5 };
+const primary: React.CSSProperties = { width: "100%", background: "#B0472A", color: "#fff", border: "none", padding: 14, borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: "pointer" };
+const switchBtn: React.CSSProperties = { width: "100%", background: "none", border: "none", color: "#5A5B50", fontSize: 13, marginTop: 14, cursor: "pointer" };

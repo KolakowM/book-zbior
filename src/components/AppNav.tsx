@@ -9,12 +9,12 @@ import {
 } from "lucide-react";
 import { signOut } from "@/lib/actions/auth";
 
-const PAPER = "#F4EEE0";
-const INK = "#20303A";
-const FOREST = "#2F5D50";
-const MUTED = "#6C6A5C";
+const BONE = "#ECE7DA";
+const INK = "#17251F";
+const GREEN = "#153A2C";
+const RUST = "#B0472A";
+const MUTED = "#5A5B50";
 
-// Pozycje menu (kolejność = kolejność na pasku)
 const NAV = [
   { href: "/biblioteka", label: "Biblioteka", icon: Library },
   { href: "/gielda", label: "Giełda", icon: Store },
@@ -23,7 +23,6 @@ const NAV = [
   { href: "/inspiracje", label: "Inspiracje", icon: Sparkles },
 ];
 
-// Krótszy zestaw na dolny pasek mobilny (max 5 ikon czytelnie)
 const MOBILE = [
   { href: "/biblioteka", label: "Półka", icon: Library },
   { href: "/gielda", label: "Giełda", icon: Store },
@@ -40,15 +39,14 @@ export default function AppNav() {
     <>
       <style>{css}</style>
 
-      {/* GÓRNY PASEK (desktop) */}
       <header className="appnav-top" style={styles.top}>
         <div style={styles.topInner}>
           <Link href="/" style={styles.logo}>
-            <BookMarked size={22} color={FOREST} />
+            <BookMarked size={22} color={GREEN} />
             <span style={styles.logoText}>Księgozbiór</span>
           </Link>
 
-          <nav style={styles.links}>
+          <nav className="appnav-links" style={styles.links}>
             {NAV.map((n) => (
               <Link key={n.href} href={n.href}
                 style={{ ...styles.link, ...(active(n.href) ? styles.linkActive : {}) }}>
@@ -68,7 +66,6 @@ export default function AppNav() {
         </div>
       </header>
 
-      {/* DOLNY PASEK (mobile) */}
       <nav className="appnav-bottom" style={styles.bottom}>
         {MOBILE.map((n) => (
           <Link key={n.href} href={n.href}
@@ -85,26 +82,26 @@ export default function AppNav() {
 const css = `
 .appnav-bottom { display: none; }
 @media (max-width: 820px) {
-  .appnav-top .appnav-links, .appnav-top nav { display: none !important; }
+  .appnav-links { display: none !important; }
   .appnav-bottom { display: flex !important; }
 }
 `;
 
 const styles: Record<string, CSSProperties> = {
-  top: { position: "sticky", top: 0, zIndex: 40, background: "rgba(244,238,224,0.9)", backdropFilter: "blur(10px)", borderBottom: "1px solid #E6DFCB" },
+  top: { position: "sticky", top: 0, zIndex: 40, background: "rgba(236,231,218,0.92)", backdropFilter: "blur(10px)", borderBottom: "1px solid #DAD4C2" },
   topInner: { maxWidth: 1200, margin: "0 auto", padding: "0 20px", height: 62, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 },
   logo: { display: "flex", alignItems: "center", gap: 8, flexShrink: 0 },
   logoText: { fontFamily: "var(--font-display)", fontSize: 19, fontWeight: 600, color: INK },
   links: { display: "flex", gap: 4 },
-  link: { display: "flex", alignItems: "center", gap: 7, fontSize: 14, fontWeight: 500, color: MUTED, padding: "8px 14px", borderRadius: 10 },
-  linkActive: { color: INK, background: "#EAE2CE", fontWeight: 600 },
+  link: { display: "flex", alignItems: "center", gap: 7, fontSize: 14, fontWeight: 500, color: MUTED, padding: "8px 14px", borderRadius: 8 },
+  linkActive: { color: INK, background: "#E1DAC8", fontWeight: 600 },
   right: { display: "flex", alignItems: "center", gap: 8, flexShrink: 0 },
-  iconBtn: { width: 38, height: 38, borderRadius: 10, display: "grid", placeItems: "center", color: MUTED },
-  avatar: { width: 38, height: 38, borderRadius: "50%", background: FOREST, color: "#fff", display: "grid", placeItems: "center" },
-  logout: { width: 38, height: 38, borderRadius: 10, display: "grid", placeItems: "center", color: MUTED, background: "none", border: "none", cursor: "pointer" },
+  iconBtn: { width: 38, height: 38, borderRadius: 8, display: "grid", placeItems: "center", color: MUTED },
+  avatar: { width: 38, height: 38, borderRadius: "50%", background: GREEN, color: "#fff", display: "grid", placeItems: "center" },
+  logout: { width: 38, height: 38, borderRadius: 8, display: "grid", placeItems: "center", color: MUTED, background: "none", border: "none", cursor: "pointer" },
 
-  bottom: { position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 40, background: PAPER, borderTop: "1px solid #E6DFCB", justifyContent: "space-around", padding: "8px 0 12px" },
-  tab: { display: "flex", flexDirection: "column", alignItems: "center", gap: 3, fontSize: 10, fontWeight: 500, color: "#A99C82", flex: 1 },
+  bottom: { position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 40, background: BONE, borderTop: "1px solid #DAD4C2", justifyContent: "space-around", padding: "8px 0 12px" },
+  tab: { display: "flex", flexDirection: "column", alignItems: "center", gap: 3, fontSize: 10, fontWeight: 500, color: "#9A9585", flex: 1 },
   tabActive: { color: INK },
   tabLabel: {},
 };
