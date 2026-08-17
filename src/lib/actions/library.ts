@@ -112,7 +112,7 @@ export async function saveReview(bookId: string, body: string, rating: number) {
 }
 
 // Włącza/wyłącza dostępność egzemplarza do wymiany (tabela listings).
-export async function toggleSwap(userLibraryId: string, on: boolean) {
+export async function toggleSwap(userLibraryId: string, on: boolean, bookId?: string) {
   const supabase = createClient();
   const {
     data: { user },
@@ -120,9 +120,16 @@ export async function toggleSwap(userLibraryId: string, on: boolean) {
   if (!user) throw new Error("Musisz być zalogowany.");
 
   if (on) {
+    const { data: prof } = await supabase
+      .from("profiles")
+      .select("city")
+      .eq("id", user.id)
+      .maybeSingle();
     const { error } = await supabase.from("listings").insert({
       user_id: user.id,
       user_library_id: userLibraryId,
+      book_id: bookId ?? null,
+      city: (prof as any)?.city ?? null,
       status: "active",
     });
     if (error) throw error;

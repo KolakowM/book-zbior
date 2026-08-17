@@ -74,7 +74,7 @@ export default function BookDrawer({ item, onClose }: { item: LibraryItem; onClo
   const flipSwap = () => {
     const next = !forExchange;
     setForExchange(next);
-    toggleSwap(item.id, next).catch(() => setForExchange(!next));
+    toggleSwap(item.id, next, item.book_id).catch(() => setForExchange(!next));
   };
   const submitReview = async () => {
     if (rating < 1) return;

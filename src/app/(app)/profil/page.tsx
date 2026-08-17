@@ -41,7 +41,7 @@ export default async function ProfilPage() {
         <h1 style={name}>{p?.display_name || p?.username}</h1>
         <p style={handle}>@{p?.username}{p?.city ? ` · ${p.city}` : ""}</p>
         {p?.bio && <p style={bio}>{p.bio}</p>}
-        <ProfileEditor initial={{ display_name: p?.display_name || "", city: p?.city || "", bio: p?.bio || "" }} />
+        <ProfileEditor initial={{ username: p?.username || "", display_name: p?.display_name || "", city: p?.city || "", bio: p?.bio || "" }} />
         {p?.username && (
           <Link href={`/u/${p.username}`} style={publicLink}>
             <ExternalLink size={14} /> Zobacz swój profil publiczny
