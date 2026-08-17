@@ -74,7 +74,10 @@ export default function BookDrawer({ item, onClose }: { item: LibraryItem; onClo
   const flipSwap = () => {
     const next = !forExchange;
     setForExchange(next);
-    toggleSwap(item.id, next, item.book_id).catch(() => setForExchange(!next));
+    toggleSwap(item.id, next, item.book_id).catch((e) => {
+      setForExchange(!next);
+      alert("Nie udało się zmienić statusu wymiany: " + (e?.message || "błąd zapisu. Sprawdź, czy migracja 04 została uruchomiona."));
+    });
   };
   const submitReview = async () => {
     if (rating < 1) return;

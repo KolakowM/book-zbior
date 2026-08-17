@@ -90,3 +90,75 @@ export async function fetchBookFromBN(rawIsbn: string): Promise<BookMeta | null>
     return null;
   }
 }
+
+// ─── Wyszukiwanie po tytule (podpowiedzi przy dodawaniu) ───────────
+export interface SearchResult {
+  title: string;
+  author: string;
+  year: number | null;
+  pages: number | null;
+  isbn13: string | null;
+  isbn10: string | null;
+}
+
+function allMarcFields(fields: any[], tag: string): any[] {
+  return fields.filter((x) => x && x[tag] !== undefined).map((x) => x[tag]);
+}
+
+export async function searchBooksByTitle(query: string): Promise<SearchResult[]> {
+  const q = query.trim();
+  if (q.length < 3) return [];
+
+  try {
+    const res = await fetch(
+      `https://data.bn.org.pl/api/networks/bibs.json?title=${encodeURIComponent(q)}&limit=30`,
+      { headers: { Accept: "application/json" } }
+    );
+    if (!res.ok) return [];
+
+    const data: any = await res.json();
+    const bibs: any[] = data?.bibs ?? [];
+    const out: SearchResult[] = [];
+    const seen = new Set<string>();
+
+    for (const bib of bibs) {
+      const fields: any[] = bib.marc?.fields ?? [];
+
+      const f245 = marcField(fields, "245");
+      let title = tidy(marcSub(f245, "a") ?? bib.title ?? "");
+      const subtitle = marcSub(f245, "b");
+      if (subtitle) title = `${title}: ${tidy(subtitle)}`;
+      if (!title) continue;
+
+      let author = marcSub(marcField(fields, "100"), "a") ?? "";
+      if (author) author = reformatAuthor(author);
+
+      const ym = String(bib.publicationYear ?? "").match(/\d{4}/);
+      const year = ym ? parseInt(ym[0], 10) : null;
+
+      const pagesStr = marcSub(marcField(fields, "300"), "a") ?? "";
+      const pm = pagesStr.match(/(\d+)\s*s\b/);
+      const pages = pm ? parseInt(pm[1], 10) : null;
+
+      let isbn13: string | null = null;
+      let isbn10: string | null = null;
+      for (const f of allMarcFields(fields, "020")) {
+        const raw = marcSub(f, "a");
+        if (!raw) continue;
+        const c = raw.replace(/[^0-9Xx]/g, "");
+        if (c.length === 13 && !isbn13) isbn13 = c;
+        else if (c.length === 10 && !isbn10) isbn10 = c;
+      }
+
+      const key = (title + "|" + author).toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+
+      out.push({ title, author, year, pages, isbn13, isbn10 });
+      if (out.length >= 8) break;
+    }
+    return out;
+  } catch {
+    return [];
+  }
+}

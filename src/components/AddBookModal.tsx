@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Check, Search, Loader2 } from "lucide-react";
 import { s } from "@/styles/shelf";
 import { STATUSES, STATUS_KEYS } from "@/lib/statuses";
@@ -8,8 +8,14 @@ import { addBook } from "@/lib/actions/library";
 import type { ReadingStatus } from "@/lib/types";
 
 type Lookup = "idle" | "loading" | "found" | "notfound";
+type Result = { title: string; author: string; year: number | null; pages: number | null; isbn13: string | null; isbn10: string | null };
 
 export default function AddBookModal({ onClose }: { onClose: () => void }) {
+  const [searchQ, setSearchQ] = useState("");
+  const [results, setResults] = useState<Result[]>([]);
+  const [searching, setSearching] = useState(false);
+  const skipRef = useRef(false);
+
   const [isbn, setIsbn] = useState("");
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
@@ -23,26 +29,63 @@ export default function AddBookModal({ onClose }: { onClose: () => void }) {
   const [lookup, setLookup] = useState<Lookup>("idle");
   const [busy, setBusy] = useState(false);
 
+  // Podpowiedzi po tytule (debounce)
+  useEffect(() => {
+    if (skipRef.current) { skipRef.current = false; return; }
+    const q = searchQ.trim();
+    if (q.length < 3) { setResults([]); return; }
+    const t = setTimeout(async () => {
+      setSearching(true);
+      try {
+        const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        setResults(data.results || []);
+      } catch {
+        setResults([]);
+      } finally {
+        setSearching(false);
+      }
+    }, 350);
+    return () => clearTimeout(t);
+  }, [searchQ]);
+
+  const fillFrom = (b: any) => {
+    setTitle(b.title ?? "");
+    setAuthor(b.author ?? "");
+    setYear(b.year ? String(b.year) : "");
+    setPages(b.pages ? String(b.pages) : "");
+    setPublisher(b.publisher ?? "");
+    setCoverUrl(b.coverUrl ?? "");
+    setIsbn13(b.isbn13 ?? "");
+    setIsbn10(b.isbn10 ?? "");
+  };
+
+  const pick = async (r: Result) => {
+    skipRef.current = true;
+    setSearchQ(r.title);
+    setResults([]);
+    const code = r.isbn13 || r.isbn10;
+    if (code) {
+      setIsbn(code);
+      setLookup("loading");
+      try {
+        const res = await fetch(`/api/isbn?isbn=${encodeURIComponent(code)}`);
+        const data = await res.json();
+        if (data.found) { fillFrom(data.book); setLookup("found"); return; }
+      } catch { /* spadamy do danych z podpowiedzi */ }
+    }
+    fillFrom({ title: r.title, author: r.author, year: r.year, pages: r.pages, isbn13: r.isbn13, isbn10: r.isbn10 });
+    setLookup("found");
+  };
+
   const doLookup = async () => {
     if (!isbn.trim()) return;
     setLookup("loading");
     try {
       const res = await fetch(`/api/isbn?isbn=${encodeURIComponent(isbn.trim())}`);
       const data = await res.json();
-      if (data.found) {
-        const b = data.book;
-        setTitle(b.title ?? "");
-        setAuthor(b.author ?? "");
-        setYear(b.year ? String(b.year) : "");
-        setPages(b.pages ? String(b.pages) : "");
-        setPublisher(b.publisher ?? "");
-        setCoverUrl(b.coverUrl ?? "");
-        setIsbn13(b.isbn13 ?? "");
-        setIsbn10(b.isbn10 ?? "");
-        setLookup("found");
-      } else {
-        setLookup("notfound");
-      }
+      if (data.found) { fillFrom(data.book); setLookup("found"); }
+      else setLookup("notfound");
     } catch {
       setLookup("notfound");
     }
@@ -76,6 +119,36 @@ export default function AddBookModal({ onClose }: { onClose: () => void }) {
       <div style={{ ...s.sheet, maxHeight: "88vh", overflowY: "auto" }} onClick={(e) => e.stopPropagation()}>
         <div style={s.sheetHandle} />
         <h2 style={s.sheetTitle}>Dodaj książkę</h2>
+
+        {/* Wyszukiwanie po tytule */}
+        <label style={s.fieldLabel}>Szukaj po tytule</label>
+        <div style={{ position: "relative", marginBottom: 6 }}>
+          <div style={{ ...s.searchWrap, marginTop: 0, maxWidth: "none", background: "#F3EFE4", border: "1px solid #DAD4C2" }}>
+            <Search size={16} color="#8A7E64" />
+            <input
+              style={s.search}
+              value={searchQ}
+              onChange={(e) => setSearchQ(e.target.value)}
+              placeholder="np. Solaris, Zbrodnia i kara…"
+            />
+            {searching && <Loader2 size={16} className="spin" color="#8A7E64" />}
+          </div>
+          {results.length > 0 && (
+            <div style={suggBox}>
+              {results.map((r, i) => (
+                <button key={i} type="button" style={suggItem} onClick={() => pick(r)}>
+                  <div style={suggTitle}>{r.title}</div>
+                  <div style={suggMeta}>{r.author || "autor nieznany"}{r.year ? ` · ${r.year}` : ""}</div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        <p style={{ fontSize: 11, color: "#A99C82", margin: "2px 0 14px" }}>
+          Wpisz min. 3 znaki. Podpowiedzi z Biblioteki Narodowej.
+        </p>
+
+        <div style={s.orLine}><span style={s.orText}>albo po numerze ISBN</span></div>
 
         <label style={s.fieldLabel}>Numer ISBN</label>
         <div style={{ display: "flex", gap: 8, marginBottom: 6 }}>
@@ -114,13 +187,9 @@ export default function AddBookModal({ onClose }: { onClose: () => void }) {
         )}
         {lookup === "notfound" && (
           <p style={notFoundNote}>
-            Nie znaleźliśmy tej książki w Open Library. Zapiszemy sam numer ISBN — resztę uzupełnij ręcznie poniżej.
+            Nie znaleźliśmy tej książki. Zapiszemy sam numer ISBN — resztę uzupełnij ręcznie poniżej.
           </p>
         )}
-
-        <p style={{ fontSize: 11, color: "#A99C82", margin: "2px 0 14px" }}>
-          Skanowanie kodu aparatem dodamy wkrótce.
-        </p>
 
         <div style={s.orLine}><span style={s.orText}>dane książki</span></div>
 
@@ -156,10 +225,21 @@ export default function AddBookModal({ onClose }: { onClose: () => void }) {
 }
 
 const foundBox: React.CSSProperties = {
-  display: "flex", alignItems: "center", gap: 12, background: "#EEF4F0",
+  display: "flex", alignItems: "center", gap: 12, background: "#EDF2EE",
   border: "1px solid #CFE0D6", borderRadius: 12, padding: 12, marginBottom: 14,
 };
 const notFoundNote: React.CSSProperties = {
-  fontSize: 13, color: "#7A5B00", background: "#FBF3DA",
+  fontSize: 13, color: "#7A5B00", background: "#F3E7C8",
   border: "1px solid #E9D9A6", borderRadius: 10, padding: 12, margin: "0 0 14px", lineHeight: 1.5,
 };
+const suggBox: React.CSSProperties = {
+  position: "absolute", top: "100%", left: 0, right: 0, zIndex: 5, marginTop: 4,
+  background: "#F3EFE4", border: "1px solid #DAD4C2", borderRadius: 12, overflow: "hidden",
+  boxShadow: "0 12px 28px rgba(23,37,31,0.18)", maxHeight: 280, overflowY: "auto",
+};
+const suggItem: React.CSSProperties = {
+  display: "block", width: "100%", textAlign: "left", background: "transparent",
+  border: "none", borderBottom: "1px solid #E4DECD", padding: "11px 14px", cursor: "pointer",
+};
+const suggTitle: React.CSSProperties = { fontSize: 14, fontWeight: 600, color: "#17251F", lineHeight: 1.2 };
+const suggMeta: React.CSSProperties = { fontSize: 12, color: "#6C6A5C", marginTop: 2 };
