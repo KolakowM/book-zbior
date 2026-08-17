@@ -151,7 +151,7 @@ export async function getBookExtras(userLibraryId: string, bookId: string) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { reviewBody: "", forExchange: false };
+  if (!user) return { reviewBody: "", forExchange: false, loan: null };
 
   const { data: review } = await supabase
     .from("reviews")
@@ -167,7 +167,70 @@ export async function getBookExtras(userLibraryId: string, bookId: string) {
     .eq("status", "active")
     .maybeSingle();
 
-  return { reviewBody: review?.body ?? "", forExchange: !!listing };
+  const { data: loan } = await supabase
+    .from("loans")
+    .select("id, borrower_name, expected_return")
+    .eq("user_library_id", userLibraryId)
+    .is("returned_at", null)
+    .order("loan_date", { ascending: false })
+    .maybeSingle();
+
+  return { reviewBody: review?.body ?? "", forExchange: !!listing, loan: loan ?? null };
+}
+
+// ─── Pożyczki ──────────────────────────────────────────────────────
+export async function lendBook(userLibraryId: string, borrowerName: string, expectedReturn: string | null) {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Musisz być zalogowany.");
+
+  const { error } = await supabase.from("loans").insert({
+    user_library_id: userLibraryId,
+    borrower_name: borrowerName.trim() || "—",
+    expected_return: expectedReturn || null,
+  });
+  if (error) throw error;
+  await supabase.from("user_library").update({ physical_state: "lent_out" }).eq("id", userLibraryId);
+  revalidatePath("/biblioteka");
+}
+
+export async function returnBook(userLibraryId: string) {
+  const supabase = createClient();
+  const today = new Date().toISOString().slice(0, 10);
+  const { error } = await supabase
+    .from("loans")
+    .update({ returned_at: today })
+    .eq("user_library_id", userLibraryId)
+    .is("returned_at", null);
+  if (error) throw error;
+  await supabase.from("user_library").update({ physical_state: "in_library" }).eq("id", userLibraryId);
+  revalidatePath("/biblioteka");
+}
+
+// Dodaje istniejącą pozycję katalogu do biblioteki użytkownika (z karty publicznej).
+export async function addExistingToLibrary(bookId: string) {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Musisz być zalogowany.");
+
+  const { data: existing } = await supabase
+    .from("user_library")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("book_id", bookId)
+    .maybeSingle();
+  if (existing) return { already: true };
+
+  const { error } = await supabase
+    .from("user_library")
+    .insert({ user_id: user.id, book_id: bookId, reading_status: "want_to_read" });
+  if (error) throw error;
+  revalidatePath("/biblioteka");
+  return { already: false };
 }
 
 // Zapis pól finansowych, postępu i notatek egzemplarza.

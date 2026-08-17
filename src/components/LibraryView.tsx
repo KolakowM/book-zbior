@@ -8,16 +8,18 @@ import AddBookModal from "./AddBookModal";
 import BookDrawer from "./BookDrawer";
 import type { LibraryItem, ReadingStatus } from "@/lib/types";
 
-const FILTERS: { key: "all" | ReadingStatus; label: string }[] = [
+const FILTERS: { key: "all" | ReadingStatus | "lent" | "swap"; label: string }[] = [
   { key: "all", label: "Wszystkie" },
   { key: "reading", label: "W trakcie" },
   { key: "read", label: "Przeczytane" },
   { key: "want_to_read", label: "Do przeczytania" },
   { key: "abandoned", label: "Porzucone" },
+  { key: "lent", label: "Pożyczone" },
+  { key: "swap", label: "Do wymiany" },
 ];
 
 export default function LibraryView({ items }: { items: LibraryItem[] }) {
-  const [filter, setFilter] = useState<"all" | ReadingStatus>("all");
+  const [filter, setFilter] = useState<"all" | ReadingStatus | "lent" | "swap">("all");
   const [query, setQuery] = useState("");
   const [showAdd, setShowAdd] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -26,7 +28,11 @@ export default function LibraryView({ items }: { items: LibraryItem[] }) {
     () =>
       items.filter((it) => {
         const q = (it.book.title + " " + it.book.author).toLowerCase().includes(query.toLowerCase());
-        const f = filter === "all" ? true : it.reading_status === filter;
+        const f =
+          filter === "all" ? true :
+          filter === "lent" ? it.physical_state === "lent_out" :
+          filter === "swap" ? it.physical_state === "on_exchange" :
+          it.reading_status === filter;
         return q && f;
       }),
     [items, filter, query]

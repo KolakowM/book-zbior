@@ -4,7 +4,8 @@
 import { useEffect, useState } from "react";
 import { X, Star, Repeat, Calendar, BookOpen, Building2, Check, Edit3, ChevronDown } from "lucide-react";
 import { STATUSES, STATUS_KEYS } from "@/lib/statuses";
-import { updateStatus, updateRating, saveReview, toggleSwap, getBookExtras, updateDetails } from "@/lib/actions/library";
+import { updateStatus, updateRating, saveReview, toggleSwap, getBookExtras, updateDetails, lendBook, returnBook } from "@/lib/actions/library";
+import Link from "next/link";
 import type { LibraryItem, ReadingStatus } from "@/lib/types";
 
 const PAPER = "#ECE7DA";
@@ -36,6 +37,12 @@ export default function BookDrawer({ item, onClose }: { item: LibraryItem; onClo
   const [savingDetails, setSavingDetails] = useState(false);
   const [savedDetails, setSavedDetails] = useState(false);
 
+  // Pożyczka
+  const [loan, setLoan] = useState<{ id: string; borrower_name: string | null; expected_return: string | null } | null>(null);
+  const [borrower, setBorrower] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [loanBusy, setLoanBusy] = useState(false);
+
   const color = item.book.cover_color ?? "#3D4A6B";
   const cover = item.book.cover_image_url;
 
@@ -45,6 +52,7 @@ export default function BookDrawer({ item, onClose }: { item: LibraryItem; onClo
       setReviewBody(x.reviewBody);
       setDraft(x.reviewBody);
       setForExchange(x.forExchange);
+      setLoan(x.loan);
       setLoaded(true);
     });
   }, [item.id, item.book_id]);
@@ -102,6 +110,32 @@ export default function BookDrawer({ item, onClose }: { item: LibraryItem; onClo
       alert("Nie udało się zapisać szczegółów.");
     } finally {
       setSavingDetails(false);
+    }
+  };
+
+  const doLend = async () => {
+    setLoanBusy(true);
+    try {
+      await lendBook(item.id, borrower, dueDate || null);
+      setLoan({ id: "tmp", borrower_name: borrower.trim() || "—", expected_return: dueDate || null });
+      setBorrower("");
+      setDueDate("");
+    } catch {
+      alert("Nie udało się zapisać pożyczki.");
+    } finally {
+      setLoanBusy(false);
+    }
+  };
+
+  const doReturn = async () => {
+    setLoanBusy(true);
+    try {
+      await returnBook(item.id);
+      setLoan(null);
+    } catch {
+      alert("Nie udało się oznaczyć zwrotu.");
+    } finally {
+      setLoanBusy(false);
     }
   };
 
@@ -200,6 +234,34 @@ export default function BookDrawer({ item, onClose }: { item: LibraryItem; onClo
             </div>
           )}
 
+          {/* Pożyczka */}
+          <div style={sectionLabel}>Pożyczka</div>
+          {loan ? (
+            <div style={loanActive}>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: INK }}>Pożyczona: {loan.borrower_name || "—"}</div>
+                {loan.expected_return && <div style={{ fontSize: 12, color: MUTED, marginTop: 2 }}>Zwrot do {loan.expected_return}</div>}
+              </div>
+              <button onClick={doReturn} disabled={loanBusy} style={loanReturnBtn}>Zwrócona</button>
+            </div>
+          ) : (
+            <div style={loanForm}>
+              <div style={{ display: "flex", gap: 10 }}>
+                <div style={{ flex: 1.4 }}>
+                  <label style={miniLabel}>Komu</label>
+                  <input style={miniField} value={borrower} onChange={(e) => setBorrower(e.target.value)} placeholder="imię lub nazwa" />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={miniLabel}>Zwrot do</label>
+                  <input style={miniField} type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+                </div>
+              </div>
+              <button onClick={doLend} disabled={loanBusy || !borrower.trim()} style={{ ...saveReviewBtn, opacity: borrower.trim() && !loanBusy ? 1 : 0.5 }}>
+                <Check size={15} /> Zapisz pożyczkę
+              </button>
+            </div>
+          )}
+
           {/* Recenzja */}
           <div style={sectionLabel}>Twoja recenzja</div>
           {!loaded ? (
@@ -231,6 +293,10 @@ export default function BookDrawer({ item, onClose }: { item: LibraryItem; onClo
           ) : (
             <p style={hint}>Najpierw oceń książkę gwiazdkami, aby dodać recenzję.</p>
           )}
+
+          <Link href={`/ksiazka/${item.book_id}`} style={publicLink}>
+            Zobacz publiczną stronę książki →
+          </Link>
         </div>
       </aside>
     </>
@@ -279,3 +345,7 @@ const detailsWrap: React.CSSProperties = { marginTop: 10, padding: 16, borderRad
 const detailsRow: React.CSSProperties = { display: "flex", gap: 10 };
 const miniLabel: React.CSSProperties = { display: "block", fontSize: 11, fontWeight: 600, color: MUTED, margin: "0 0 5px" };
 const miniField: React.CSSProperties = { width: "100%", border: "1px solid #DAD4C2", background: PAPER, borderRadius: 8, padding: "9px 10px", fontSize: 14, color: INK, marginBottom: 12, outline: "none", fontFamily: "var(--font-body)" };
+const loanActive: React.CSSProperties = { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, background: "#F3EFE4", border: "1px solid #DAD4C2", borderRadius: 12, padding: 14 };
+const loanReturnBtn: React.CSSProperties = { background: FOREST, color: "#fff", border: "none", padding: "9px 14px", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", flexShrink: 0 };
+const loanForm: React.CSSProperties = { background: "#F3EFE4", border: "1px solid #DAD4C2", borderRadius: 12, padding: 14 };
+const publicLink: React.CSSProperties = { display: "block", marginTop: 28, fontSize: 14, fontWeight: 600, color: BRASS, textDecoration: "none" };

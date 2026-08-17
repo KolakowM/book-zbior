@@ -1,7 +1,7 @@
 "use client";
 
 /* eslint-disable @next/next/no-img-element */
-import { Star, Trash2, Repeat } from "lucide-react";
+import { Star, Trash2, Repeat, Clock } from "lucide-react";
 import { s } from "@/styles/shelf";
 import { STATUSES } from "@/lib/statuses";
 import { removeBook } from "@/lib/actions/library";
@@ -12,6 +12,7 @@ export default function BookCard({ item, onOpen }: { item: LibraryItem; onOpen: 
   const color = item.book.cover_color ?? "#3D4A6B";
   const cover = item.book.cover_image_url;
   const forExchange = item.physical_state === "on_exchange";
+  const lentOut = item.physical_state === "lent_out";
 
   const progress =
     item.reading_status === "reading" && item.current_page != null && item.book.page_count
@@ -41,6 +42,11 @@ export default function BookCard({ item, onOpen }: { item: LibraryItem; onOpen: 
           {forExchange && (
             <div style={swapBadge} title="Dostępna do wymiany">
               <Repeat size={11} strokeWidth={2.5} />
+            </div>
+          )}
+          {lentOut && (
+            <div style={lentBadge} title="Pożyczona">
+              <Clock size={11} strokeWidth={2.5} />
             </div>
           )}
           {progress != null && (
@@ -76,5 +82,11 @@ export default function BookCard({ item, onOpen }: { item: LibraryItem; onOpen: 
 const swapBadge: React.CSSProperties = {
   position: "absolute", top: 10, right: 10, width: 22, height: 22, borderRadius: "50%",
   background: "#C0871B", color: "#231A05", display: "grid", placeItems: "center", zIndex: 3,
+  boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
+};
+
+const lentBadge: React.CSSProperties = {
+  position: "absolute", top: 10, right: 10, width: 22, height: 22, borderRadius: "50%",
+  background: "#5A5B50", color: "#F3EFE4", display: "grid", placeItems: "center", zIndex: 3,
   boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
 };
